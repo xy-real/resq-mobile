@@ -1,112 +1,62 @@
-# ResQ Mobile Documentation Index
+# ResQ Mobile Documentation
 
-Welcome to the ResQ Mobile documentation. This directory contains comprehensive guides and references for the disaster response system.
+Clean, organized documentation for the ResQ disaster response system.
 
-## Core Features
+## Core Feature Guides
 
-### Authentication & User Management
-- **[AUTHENTICATION.md](AUTHENTICATION.md)** - Authentication setup and flow
-- **[BACKEND_AUTH_IMPLEMENTATION_GUIDE.md](BACKEND_AUTH_IMPLEMENTATION_GUIDE.md)** - Backend auth implementation details
-- **[BACKEND_AUTH_QUICK_START.md](BACKEND_AUTH_QUICK_START.md)** - Quick start guide for auth setup
+### 1. **Authentication** 
+   - **[AUTHENTICATION.md](AUTHENTICATION.md)** - Sign-in/sign-up implementation, color scheme, features
+   - **[BACKEND_AUTH_IMPLEMENTATION_GUIDE.md](BACKEND_AUTH_IMPLEMENTATION_GUIDE.md)** - Detailed backend flow and integration
 
-### Status Reporting System
-- **[STATUS_UPDATE_IMPLEMENTATION.md](STATUS_UPDATE_IMPLEMENTATION.md)** - Status update backend implementation
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick reference for common tasks
+### 2. **Status Reporting**
+   - **[STATUS_UPDATE_IMPLEMENTATION.md](STATUS_UPDATE_IMPLEMENTATION.md)** - Backend status update system with database sync
 
-### Map & Evacuation Centers
-- **[MAP_FEATURE_GUIDE.md](MAP_FEATURE_GUIDE.md)** - Map features and integration
-- **[MAP_QUICK_START.md](MAP_QUICK_START.md)** - Quick start for map functionality
-- **[MAP_VISUAL_REFERENCE.md](MAP_VISUAL_REFERENCE.md)** - Map UI visual reference
+### 3. **Map & Evacuation Centers**
+   - **[MAP_FEATURE_GUIDE.md](MAP_FEATURE_GUIDE.md)** - Interactive map, markers, evacuation centers
 
-### Logout Feature
-- **[LOGOUT_FEATURE_GUIDE.md](LOGOUT_FEATURE_GUIDE.md)** - Logout implementation guide
-- **[LOGOUT_QUICK_START.md](LOGOUT_QUICK_START.md)** - Quick start for logout
-- **[LOGOUT_ARCHITECTURE_DESIGN.md](LOGOUT_ARCHITECTURE_DESIGN.md)** - Architecture design
+### 4. **Logout**
+   - **[LOGOUT_FEATURE_GUIDE.md](LOGOUT_FEATURE_GUIDE.md)** - Secure logout implementation
 
-### Location Integration
-- **[LOCATION_INTEGRATION_GUIDE.md](LOCATION_INTEGRATION_GUIDE.md)** - GPS and location services
+### 5. **Registration**
+   - **[SIGNUP_PAGE_IMPLEMENTATION_GUIDE.md](SIGNUP_PAGE_IMPLEMENTATION_GUIDE.md)** - User sign-up form and validation
+   - **[SIGNUP_FORM_VALIDATORS_REFERENCE.md](SIGNUP_FORM_VALIDATORS_REFERENCE.md)** - Form validation rules
 
-### Design System
-- **[DESIGN_GUIDE.md](DESIGN_GUIDE.md)** - UI/UX design guidelines
-- **[DESIGN_SYSTEM_GUIDE.md](DESIGN_SYSTEM_GUIDE.md)** - Complete design system
-- **[COLOR_SYSTEM_GUIDE.md](COLOR_SYSTEM_GUIDE.md)** - Color palette and usage
-- **[COLOR_CONSISTENCY_AUDIT_REPORT.md](COLOR_CONSISTENCY_AUDIT_REPORT.md)** - Color consistency audit
+### 6. **Design System**
+   - **[DESIGN_SYSTEM_GUIDE.md](DESIGN_SYSTEM_GUIDE.md)** - Complete UI/UX system and component library
+   - **[COLOR_SYSTEM_GUIDE.md](COLOR_SYSTEM_GUIDE.md)** - Color palette and usage
 
-### Form Validation
-- **[SIGNUP_FORM_VALIDATORS_REFERENCE.md](SIGNUP_FORM_VALIDATORS_REFERENCE.md)** - Form validation reference
+### 7. **Location Services**
+   - **[LOCATION_INTEGRATION_GUIDE.md](LOCATION_INTEGRATION_GUIDE.md)** - GPS and location tracking
 
-### Registration & Sign-up
-- **[SIGNUP_PAGE_ARCHITECTURE_DESIGN.md](SIGNUP_PAGE_ARCHITECTURE_DESIGN.md)** - Sign-up page architecture
-- **[SIGNUP_PAGE_IMPLEMENTATION_GUIDE.md](SIGNUP_PAGE_IMPLEMENTATION_GUIDE.md)** - Implementation guide
-- **[SIGNUP_PAGE_QUICK_REFERENCE.md](SIGNUP_PAGE_QUICK_REFERENCE.md)** - Quick reference
+## Supporting Documentation
 
-## Project Documentation
-
-### Guides & References
-- **[INDEX.md](INDEX.md)** - This file
-- **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - Feature integration guide
-- **[TASKS.md](TASKS.md)** - Task tracking and checklists
-
-### Implementation Summaries
-- **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Implementation completion status
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Summary of implementations
-- **[DELIVERY_SUMMARY.md](DELIVERY_SUMMARY.md)** - Delivery summary
+### Development & Integration
+   - **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - How to integrate features into the app
+   - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick lookup for common tasks and code examples
+   - **[TASKS.md](TASKS.md)** - Task tracking and implementation checklist
 
 ## Database & Backend
 
-For database schema, entity relationships, and RLS (Row-Level Security) policies, see:
-- **[../ERD.txt](../ERD.txt)** - Entity Relationship Diagram with complete schema
+- **[../ERD.txt](../ERD.txt)** - Complete database schema, tables, relationships, and RLS policies
 
-## Getting Started
+## Quick Start
 
-1. **New to the project?** Start with [../README.md](../README.md)
-2. **Setting up authentication?** See [AUTHENTICATION.md](AUTHENTICATION.md)
-3. **Building features?** Check [IMPLEMENTATION_GUIDE.md](BACKEND_AUTH_IMPLEMENTATION_GUIDE.md)
-4. **Need quick answers?** Use [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
-5. **Questions about design?** Review [DESIGN_SYSTEM_GUIDE.md](DESIGN_SYSTEM_GUIDE.md)
+**For a new developer:**
+1. Read [../README.md](../README.md) for project overview
+2. Check [AUTHENTICATION.md](AUTHENTICATION.md) to understand the auth system
+3. Review the specific feature guide you're working on
+4. Use [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for code examples
 
-## File Organization
+**For design questions:**
+- See [DESIGN_SYSTEM_GUIDE.md](DESIGN_SYSTEM_GUIDE.md)
 
-This documentation is organized by feature:
-- **Auth files**: Authentication and user management
-- **Map files**: Map display and evacuation centers
-- **Logout files**: Logout functionality
-- **Signup files**: Registration and sign-up process
-- **Design files**: UI/UX and design system
-- **Location files**: GPS and location services
-- **Summary files**: Project status and implementation tracking
-
-## Key Resources
-
-### For Developers
-- [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) - How to integrate features
-- [BACKEND_AUTH_IMPLEMENTATION_GUIDE.md](BACKEND_AUTH_IMPLEMENTATION_GUIDE.md) - Backend implementation
-- [STATUS_UPDATE_IMPLEMENTATION.md](STATUS_UPDATE_IMPLEMENTATION.md) - Status system
-- [LOCATION_INTEGRATION_GUIDE.md](LOCATION_INTEGRATION_GUIDE.md) - Location services
-- [../ERD.txt](../ERD.txt) - Database schema
-
-### For Designers
-- [DESIGN_SYSTEM_GUIDE.md](DESIGN_SYSTEM_GUIDE.md) - Complete design system
-- [COLOR_SYSTEM_GUIDE.md](COLOR_SYSTEM_GUIDE.md) - Colors and theming
-- [MAP_VISUAL_REFERENCE.md](MAP_VISUAL_REFERENCE.md) - Map UI reference
-
-### For Project Managers
-- [TASKS.md](TASKS.md) - Task tracking
-- [IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md) - Completion status
-- [DELIVERY_SUMMARY.md](DELIVERY_SUMMARY.md) - Project summary
-
-## Questions?
-
-Refer to the appropriate documentation above. If information is not found, check:
-1. The specific feature guide
-2. The implementation guide
-3. The quick reference
-4. The design system
+**For API/backend questions:**
+- See [../ERD.txt](../ERD.txt) and feature implementation guides
 
 ---
 
-**Last Updated**: February 27, 2026  
-**Docs Version**: v1.0
+**Documentation Status**: Consolidated and deduplicated (15 core guides)  
+**Last Updated**: February 27, 2026
 
 ---
 
