@@ -6,7 +6,9 @@ import '../theme/app_theme.dart';
 import '../widgets/status_header.dart';
 import '../widgets/status_button.dart';
 import '../widgets/sms_fallback_card.dart';
+import '../widgets/logout_dialog.dart';
 import '../providers/app_state_provider.dart';
+import '../providers/auth_provider.dart';
 import '../services/location_service.dart';
 import '../utils/time_formatter.dart';
 
@@ -50,6 +52,41 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
     );
+  }
+
+  /// Handle logout action
+  /// 
+  /// Shows a confirmation dialog and performs logout if confirmed.
+  /// Logout includes:
+  /// - Signing out from Supabase and Google Sign-In
+  /// - Clearing all cached profile data
+  /// - Clearing local session flags
+  /// - Resetting auth state
+  /// 
+  /// After logout completes, the auth state change will be detected by
+  /// AuthWrapper and navigation to login screen will happen automatically.
+  Future<void> _handleLogout() async {
+    if (!mounted) return;
+
+    final confirmed = await LogoutDialog.show(
+      context,
+      onLogoutConfirmed: () async {
+        final authNotifier = context.read<AuthNotifier>();
+        await authNotifier.signOut();
+      },
+    );
+
+    if (confirmed && mounted) {
+      // Navigation will happen automatically when auth state changes
+      // via the AuthWrapper stream
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logged out successfully'),
+          backgroundColor: AppTheme.statusSafe,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -328,7 +365,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              actions: [],
+              actions: [
+                // Logout button - placed in the AppBar for easy access
+                Tooltip(
+                  message: 'Log out',
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: AppTheme.textSecondary,
+                    ),
+                    onPressed: _handleLogout,
+                    splashRadius: 24,
+                  ),
+                ),
+              ],
             ),
           ),
           body: SingleChildScrollView(

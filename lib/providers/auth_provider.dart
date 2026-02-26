@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/user_profile.dart';
 import '../services/profile_completion_service.dart';
+import '../services/auth_service.dart';
 
 /// Represents the authentication and profile completion state
 enum AuthFlowState {
@@ -108,17 +109,42 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  /// Sign out and clear all auth data
+  /// Sign out and clear all authentication data
+  /// 
+  /// This method performs comprehensive logout by:
+  /// 1. Clearing Supabase authentication session (via AuthService)
+  /// 2. Clearing all cached profile data and session flags
+  /// 3. Resetting the auth state to unauthenticated
+  /// 
+  /// After this method completes:
+  /// - All auth tokens are cleared
+  /// - All profile data is removed from local storage
+  /// - All session flags (like profileCompleted) are reset
+  /// - Auth state listeners will be notified and can trigger navigation
+  /// 
+  /// Throws an exception if authentication cleanup fails.
   Future<void> signOut() async {
     try {
+      // Clear Supabase session and Google Sign-In
+      final authService = AuthService();
+      await authService.signOut();
+
+      // Clear all cached profile data and session flags
       await _profileService.clearAllProfileData();
+
+      // Reset the auth state
       _state = AuthFlowState.unauthenticated;
       _profile = null;
       _error = null;
+      _isLoadingProfile = false;
+
+      debugPrint('User successfully signed out - all auth data cleared');
       notifyListeners();
     } catch (e) {
       _error = 'Failed to sign out: $e';
+      debugPrint('Sign-out error: $e');
       notifyListeners();
+      rethrow;
     }
   }
 
