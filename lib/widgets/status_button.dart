@@ -2,25 +2,27 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 /// Status options for emergency with semantic color meanings
-/// Includes both display label (user-friendly) and backend value (for API/storage)
+/// Updated to use single primary brand color with status indicators via label, icon, and optional accent bar
 enum StatusOption {
-  safe('Safe', 'SAFE', Color(0xFF10b981)), // Green
-  needsAssistance('Needs Assistance', 'NEEDS ASSISTANCE', Color(0xFff97316)), // Amber
-  critical('Critical', 'CRITICAL', Color(0xFFef4444)), // Red
-  evacuated('Evacuated', 'EVACUATED', Color(0xFF3b82f6)); // Blue
+  safe('Safe', 'SAFE', Icons.verified, AppTheme.statusSafe),
+  needsAssistance('Needs Assistance', 'NEEDS ASSISTANCE', Icons.error_outline, AppTheme.statusNeedsHelp),
+  critical('Critical', 'CRITICAL', Icons.priority_high, AppTheme.statusCritical),
+  evacuated('Evacuated', 'EVACUATED', Icons.directions_walk, AppTheme.statusEvacuated);
 
   final String label; // User-friendly display label
   final String backendValue; // Value for backend/storage
-  final Color color;
+  final IconData icon; // Icon for status
+  final Color indicatorColor; // Subtle indicator color
 
-  const StatusOption(this.label, this.backendValue, this.color);
+  const StatusOption(this.label, this.backendValue, this.icon, this.indicatorColor);
 }
 
-/// Modern status button following Material 3 design principles
-/// - Flat design with soft elevation
-/// - Clear visual hierarchy and states
-/// - Accessibility-first approach (WCAG compliant contrast)
-/// - 44-48px minimum touch target
+/// Redesigned status card with minimal, clean appearance
+/// - Soft elevation with subtle shadow
+/// - Status indicated via label, icon, and optional left accent bar when selected
+/// - Single primary color used, with semantic indicator colors for visual distinction
+/// - 16-20px padding, 16px border radius (soft, modern)
+/// - Accessible touch targets and clear visual hierarchy
 class StatusButton extends StatefulWidget {
   final StatusOption status;
   final bool isActive;
@@ -69,70 +71,107 @@ class _StatusButtonState extends State<StatusButton> {
     return GestureDetector(
       onTap: isInteractive ? _handlePress : null,
       child: AnimatedOpacity(
-        opacity: isInteractive ? 1.0 : 0.6,
+        opacity: isInteractive ? 1.0 : 0.7,
         duration: const Duration(milliseconds: 200),
         child: Container(
-          // Minimum 48px height for accessibility (including padding)
-          constraints: const BoxConstraints(minHeight: 48),
+          // Minimum 48px height for accessibility
+          constraints: const BoxConstraints(minHeight: 56),
           decoration: BoxDecoration(
-            // Flat color backgrounds with semantic meaning
-            color: widget.isActive ? widget.status.color : AppTheme.surfaceElevated,
-            borderRadius: BorderRadius.circular(16), // Modern rounded corners
-            // Soft elevation shadow (subtle, not glowing)
+            // Subtle soft elevation background
+            color: widget.isActive
+                ? AppTheme.primary.withValues(alpha: 0.12) // Soft primary tint
+                : AppTheme.surfaceElevated,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge), // 16px corner radius
+            // Soft elevation shadow (no glowing effects)
             boxShadow: [
-              if (widget.isActive)
-                BoxShadow(
-                  color: widget.status.color.withValues(alpha: 0.12),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                )
-              else
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
             ],
+            // Left accent bar for selected state
+            border: Border(
+              left: BorderSide(
+                color: widget.isActive
+                    ? widget.status.indicatorColor
+                    : Colors.transparent,
+                width: 4,
+              ),
+            ),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: isInteractive ? _handlePress : null,
-              borderRadius: BorderRadius.circular(16),
-              splashColor: Colors.white.withValues(alpha: 0.1),
-              highlightColor: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+              splashColor: AppTheme.primary.withValues(alpha: 0.1),
+              highlightColor: AppTheme.primary.withValues(alpha: 0.05),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  vertical: 16, // 16px vertical padding (8pt system)
+                  vertical: 16, // 16px vertical padding
                   horizontal: 20, // 20px horizontal padding
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Status label with clear hierarchy
+                    // Left side: Icon and status label
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                      child: Row(
                         children: [
-                          Text(
-                            widget.status.label,
-                            style: TextStyle(
-                              // Title: 18-20pt semibold for clear hierarchy
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              // High contrast: white on colored background, dark on light
-                              color: widget.isActive
-                                  ? Colors.white
-                                  : AppTheme.textPrimary,
-                              letterSpacing: 0.3,
+                          // Status icon with subtle background
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: widget.status.indicatorColor
+                                  .withValues(alpha: 0.15),
+                              borderRadius:
+                                  BorderRadius.circular(AppTheme.radiusSmall),
+                            ),
+                            child: Icon(
+                              widget.status.icon,
+                              color: widget.status.indicatorColor,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: AppTheme.spacing12),
+                          // Status label with clear hierarchy
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.status.label,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textPrimary,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                if (widget.isActive)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      'Selected',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: widget.status.indicatorColor,
+                                        letterSpacing: 0.15,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: AppTheme.spacing12),
-                    // Loading spinner or check icon
+                    // Right side: Loading spinner or check icon
                     if (widget.isLoading)
                       SizedBox(
                         width: 20,
@@ -140,17 +179,14 @@ class _StatusButtonState extends State<StatusButton> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            widget.isActive
-                                ? Colors.white
-                                : AppTheme.textPrimary,
+                            AppTheme.primary,
                           ),
                         ),
                       )
                     else if (widget.isActive)
-                      // Subtle check icon for active state (not large badge)
                       Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
+                        Icons.check_circle_rounded,
+                        color: widget.status.indicatorColor,
                         size: 24,
                       ),
                   ],

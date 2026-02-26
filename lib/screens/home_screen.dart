@@ -215,32 +215,69 @@ class _HomeScreenState extends State<HomeScreen> {
         final state = appStateNotifier.state;
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('RESQ Status'),
-            elevation: 0,
-            actions: [
-              // Dev mode toggle
-              Tooltip(
-                message: 'Toggle disaster mode (dev only)',
-                child: IconButton(
-                  onPressed: () {
-                    setState(() => _devDisasterMode = !_devDisasterMode);
-                    appStateNotifier.setDisasterMode(_devDisasterMode);
-                  },
-                  icon: Icon(
-                    _devDisasterMode ? Icons.warning : Icons.warning_outlined,
-                    color: _devDisasterMode ? AppTheme.errorRed : AppTheme.textSecondary,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(64),
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: AppTheme.backgroundDark,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // ResQ branding: Bold, modern, with letter spacing
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'RESQ',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textPrimary,
+                            letterSpacing: 2.0, // Prominent letter spacing
+                          ),
+                        ),
+                        Text(
+                          'Emergency Status',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textSecondary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                // Dev mode toggle (maintains existing functionality)
+                Tooltip(
+                  message: 'Toggle disaster mode (dev only)',
+                  child: IconButton(
+                    onPressed: () {
+                      setState(() => _devDisasterMode = !_devDisasterMode);
+                      appStateNotifier.setDisasterMode(_devDisasterMode);
+                    },
+                    icon: Icon(
+                      _devDisasterMode ? Icons.warning : Icons.warning_outlined,
+                      color: _devDisasterMode
+                          ? AppTheme.statusCritical
+                          : AppTheme.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(AppTheme.spacing16),
               child: Column(
                 children: [
-                  // Disaster Mode Banner
+                  // Disaster Mode Banner (simplified)
                   DisasterModeBanner(
                     isVisible: _devDisasterMode,
                     onTap: () {
@@ -250,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacing16),
 
-                  // Status Header
+                  // Status Header Card
                   StatusHeader(
                     studentId: state.studentId,
                     currentStatus: state.currentStatus,
@@ -259,26 +296,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacing24),
 
-                  // Status Buttons Section - Clean, minimal layout
+                  // Status Selection Section - Modern, minimal layout
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Section header: clear visual hierarchy
+                      // Section header with clear typography
                       Text(
                         'Select Your Status',
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                           letterSpacing: 0.3,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // Descriptive subtitle with smaller font
+                      // Descriptive subtitle
                       Text(
                         'Choose the option that best describes your current situation',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                           color: AppTheme.textSecondary,
                           letterSpacing: 0.2,
@@ -286,81 +323,111 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: AppTheme.spacing20),
 
-                      // Four equal full-width status buttons arranged vertically
+                      // Status buttons arranged vertically with even spacing
                       StatusButton(
                         status: StatusOption.safe,
-                        isActive: state.currentStatus == StatusOption.safe.backendValue,
-                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.safe.backendValue,
-                        onPressed: () => _updateStatus(StatusOption.safe.backendValue),
+                        isActive: state.currentStatus ==
+                            StatusOption.safe.backendValue,
+                        isLoading: _isLoadingStatus &&
+                            state.currentStatus ==
+                                StatusOption.safe.backendValue,
+                        onPressed: () =>
+                            _updateStatus(StatusOption.safe.backendValue),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppTheme.spacing12),
                       StatusButton(
                         status: StatusOption.needsAssistance,
-                        isActive: state.currentStatus == StatusOption.needsAssistance.backendValue,
-                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.needsAssistance.backendValue,
-                        onPressed: () => _updateStatus(StatusOption.needsAssistance.backendValue),
+                        isActive: state.currentStatus ==
+                            StatusOption.needsAssistance.backendValue,
+                        isLoading: _isLoadingStatus &&
+                            state.currentStatus ==
+                                StatusOption.needsAssistance.backendValue,
+                        onPressed: () => _updateStatus(
+                            StatusOption.needsAssistance.backendValue),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppTheme.spacing12),
                       StatusButton(
                         status: StatusOption.critical,
-                        isActive: state.currentStatus == StatusOption.critical.backendValue,
-                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.critical.backendValue,
-                        onPressed: () => _updateStatus(StatusOption.critical.backendValue),
+                        isActive: state.currentStatus ==
+                            StatusOption.critical.backendValue,
+                        isLoading: _isLoadingStatus &&
+                            state.currentStatus ==
+                                StatusOption.critical.backendValue,
+                        onPressed: () =>
+                            _updateStatus(StatusOption.critical.backendValue),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppTheme.spacing12),
                       StatusButton(
                         status: StatusOption.evacuated,
-                        isActive: state.currentStatus == StatusOption.evacuated.backendValue,
-                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.evacuated.backendValue,
-                        onPressed: () => _updateStatus(StatusOption.evacuated.backendValue),
+                        isActive: state.currentStatus ==
+                            StatusOption.evacuated.backendValue,
+                        isLoading: _isLoadingStatus &&
+                            state.currentStatus ==
+                                StatusOption.evacuated.backendValue,
+                        onPressed: () =>
+                            _updateStatus(StatusOption.evacuated.backendValue),
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppTheme.spacing20),
+                  const SizedBox(height: AppTheme.spacing24),
 
-                  // Location Section
+                  // Location Sharing Card - Clean, minimal design
                   Container(
-                    padding: const EdgeInsets.all(AppTheme.spacing16),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppTheme.spacing20),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceBlue,
+                      color: AppTheme.surfaceElevated,
                       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      border: Border.all(color: AppTheme.dividerColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Header with icon
                         Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(AppTheme.spacing8),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                color: AppTheme.primary.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSmall),
                               ),
                               child: const Icon(
                                 Icons.location_on,
-                                color: AppTheme.primaryBlue,
+                                color: AppTheme.primary,
                                 size: 18,
                               ),
                             ),
-                            const SizedBox(width: AppTheme.spacing8),
+                            const SizedBox(width: AppTheme.spacing12),
                             const Text(
                               'Location Sharing',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: AppTheme.textPrimary,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppTheme.spacing12),
+                        const SizedBox(height: AppTheme.spacing16),
+                        // Location status display
                         Container(
-                          padding: const EdgeInsets.all(AppTheme.spacing12),
+                          padding: const EdgeInsets.all(AppTheme.spacing16),
                           decoration: BoxDecoration(
-                            color: AppTheme.backgroundDark,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                            border: Border.all(color: AppTheme.dividerColor),
+                            color: AppTheme.surface,
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusMedium),
+                            border: Border.all(
+                              color: AppTheme.border.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,22 +438,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     state.locationEnabled ? 'ON' : 'OFF',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                       color: state.locationEnabled
-                                          ? AppTheme.successGreen
+                                          ? AppTheme.statusSafe
                                           : AppTheme.textSecondary,
                                     ),
                                   ),
                                   if (_lastLocationUpdate != null)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: AppTheme.spacing4),
+                                      padding: const EdgeInsets.only(
+                                          top: AppTheme.spacing4),
                                       child: Text(
                                         'Updated ${TimeFormatter.formatTimeAgo(_lastLocationUpdate)}',
                                         style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w500,
-                                          color: AppTheme.textSecondary,
+                                          color: AppTheme.textMuted,
                                         ),
                                       ),
                                     ),
@@ -397,10 +465,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 110,
                                   child: ElevatedButton.icon(
                                     onPressed: _requestLocationPermission,
-                                    icon: const Icon(Icons.check),
+                                    icon: const Icon(Icons.check, size: 16),
                                     label: const Text('Enable'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.successGreen,
+                                      backgroundColor: AppTheme.statusSafe,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: AppTheme.spacing8,
                                         vertical: AppTheme.spacing8,
@@ -411,42 +479,48 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: AppTheme.spacing12),
-                        if (_locationPermissionStatus.isDenied)
+                        // Permission warning only if needed
+                        if (_locationPermissionStatus.isDenied) ...[
+                          const SizedBox(height: AppTheme.spacing12),
                           Container(
-                            padding: const EdgeInsets.all(AppTheme.spacing10),
+                            padding: const EdgeInsets.all(AppTheme.spacing12),
                             decoration: BoxDecoration(
-                              color: AppTheme.backgroundWarning,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                              border: Border.all(color: AppTheme.warningOrange),
+                              color: AppTheme.statusNeedsHelp.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusSmall),
+                              border: Border.all(
+                                color: AppTheme.statusNeedsHelp
+                                    .withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.info_outline,
-                                  color: AppTheme.warningOrange,
+                                  color: AppTheme.statusNeedsHelp,
                                   size: 16,
                                 ),
                                 const SizedBox(width: AppTheme.spacing8),
                                 const Expanded(
                                   child: Text(
-                                    'Location permission required to share your location with responders',
+                                    'Enable location to share your position with responders',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: AppTheme.warningOrange,
+                                      color: AppTheme.textPrimary,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacing16),
 
-                  // SMS Fallback Card (only show when offline)
+                  // SMS Fallback Card
                   SmsFallbackCard(
                     isVisible: !state.isConnected,
                     studentId: state.studentId,
@@ -454,30 +528,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacing16),
 
-                  // Additional info when offline
+                  // Offline indicator
                   if (!state.isConnected)
                     Container(
+                      width: double.infinity,
                       padding: const EdgeInsets.all(AppTheme.spacing12),
                       decoration: BoxDecoration(
-                        color: AppTheme.backgroundError,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                        border: Border.all(color: AppTheme.errorRed),
+                        color: AppTheme.statusCritical.withValues(alpha: 0.12),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusMedium),
+                        border: Border.all(
+                          color: AppTheme.statusCritical.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.cloud_off,
-                            color: AppTheme.errorRed,
-                            size: 18,
+                            color: AppTheme.statusCritical,
+                            size: 16,
                           ),
                           const SizedBox(width: AppTheme.spacing8),
                           const Expanded(
                             child: Text(
-                              'No internet connection. Your status will sync when connection is restored.',
+                              'No internet connection. Status will sync when restored.',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: AppTheme.errorRed,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                           ),

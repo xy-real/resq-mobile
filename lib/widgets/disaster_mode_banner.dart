@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Banner displayed when disaster mode is active
+/// Clean, minimal banner displayed when disaster mode is active
+/// - No gradients or heavy glowing effects
+/// - Soft elevation with subtle shadow
+/// - Clear, calm visual presentation
 class DisasterModeBanner extends StatelessWidget {
   final bool isVisible;
   final VoidCallback? onTap;
@@ -25,30 +28,19 @@ class DisasterModeBanner extends StatelessWidget {
         horizontal: AppTheme.spacing20,
       ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.errorRed,
-            AppTheme.errorRed.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        // Clean solid background (no gradients)
+        color: AppTheme.statusCritical.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         border: Border.all(
-          color: AppTheme.errorRed,
-          width: 2,
+          color: AppTheme.statusCritical.withValues(alpha: 0.3),
+          width: 1.5,
         ),
+        // Soft elevation only
         boxShadow: [
           BoxShadow(
-            color: AppTheme.errorRed.withValues(alpha: 0.4),
-            blurRadius: 16,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: AppTheme.errorRed.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -61,46 +53,50 @@ class DisasterModeBanner extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(AppTheme.spacing4),
+                  padding: const EdgeInsets.all(AppTheme.spacing8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    color: AppTheme.statusCritical.withValues(alpha: 0.2),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.radiusSmall),
                   ),
                   child: const Icon(
                     Icons.warning_rounded,
-                    color: Colors.white,
-                    size: 24,
+                    color: AppTheme.statusCritical,
+                    size: 20,
                   ),
                 ),
                 const SizedBox(width: AppTheme.spacing12),
-                const Text(
-                  'DISASTER MODE ACTIVE',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: 1.0,
+                const Expanded(
+                  child: Text(
+                    'Disaster Mode Active',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.spacing8),
+            const SizedBox(height: AppTheme.spacing12),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTheme.spacing12,
-                vertical: AppTheme.spacing4,
+                vertical: AppTheme.spacing8,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: AppTheme.statusCritical.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: const Text(
-                'Emergency response protocols enabled',
+                'Emergency response protocols enabled (dev mode)',
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textSecondary,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
