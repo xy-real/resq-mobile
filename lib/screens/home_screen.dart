@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/disaster_mode_banner.dart';
 import '../widgets/status_header.dart';
 import '../widgets/status_button.dart';
 import '../widgets/sms_fallback_card.dart';
@@ -22,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Connectivity _connectivity;
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  bool _devDisasterMode = false;
   bool _isLoadingStatus = false;
 
   @override
@@ -330,24 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              actions: [
-                // Dev mode toggle (maintains existing functionality)
-                Tooltip(
-                  message: 'Toggle disaster mode (dev only)',
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() => _devDisasterMode = !_devDisasterMode);
-                      appStateNotifier.setDisasterMode(_devDisasterMode);
-                    },
-                    icon: Icon(
-                      _devDisasterMode ? Icons.warning : Icons.warning_outlined,
-                      color: _devDisasterMode
-                          ? AppTheme.statusCritical
-                          : AppTheme.textSecondary,
-                    ),
-                  ),
-                ),
-              ],
+              actions: [],
             ),
           ),
           body: SingleChildScrollView(
@@ -355,16 +336,6 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(AppTheme.spacing16),
               child: Column(
                 children: [
-                  // Disaster Mode Banner (simplified)
-                  DisasterModeBanner(
-                    isVisible: _devDisasterMode,
-                    onTap: () {
-                      setState(() => _devDisasterMode = !_devDisasterMode);
-                      appStateNotifier.setDisasterMode(_devDisasterMode);
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.spacing16),
-
                   // Status Header Card
                   StatusHeader(
                     studentId: state.studentId,
