@@ -1,4 +1,4 @@
-package com.example.resq_mobile
+package com.vantax.resq_mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
