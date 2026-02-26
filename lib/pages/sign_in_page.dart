@@ -25,7 +25,7 @@ class _SignInPageState extends State<SignInPage> {
   
   bool _isLoading = false;
   bool _googleLoading = false;
-  bool _appleLoading = false;
+  final bool _appleLoading = false;
   String? _errorMessage;
 
   final AuthService _authService = AuthService();
@@ -147,39 +147,47 @@ class _SignInPageState extends State<SignInPage> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppTheme.spacing8),
                 Text(
                   'Sign in to your account to continue',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppTheme.spacing32),
 
                 // Error Message
                 if (_errorMessage != null)
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(AppTheme.spacing12),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withOpacity(0.1),
-                      border: Border.all(color: AppTheme.errorRed),
-                      borderRadius: BorderRadius.circular(8),
+                      color: AppTheme.backgroundError,
+                      border: Border.all(
+                        color: AppTheme.errorRed,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppTheme.errorRed),
-                        const SizedBox(width: 12),
+                        const Icon(
+                          Icons.error_outline,
+                          color: AppTheme.errorRed,
+                          size: 20,
+                        ),
+                        const SizedBox(width: AppTheme.spacing12),
                         Expanded(
                           child: Text(
                             _errorMessage!,
                             style: const TextStyle(
                               color: AppTheme.errorRed,
                               fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                if (_errorMessage != null) const SizedBox(height: 24),
+                if (_errorMessage != null) const SizedBox(height: AppTheme.spacing24),
 
                 // Form
                 Form(
@@ -203,7 +211,7 @@ class _SignInPageState extends State<SignInPage> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppTheme.spacing20),
                       CustomTextField(
                         label: 'Password',
                         hint: 'Enter your password',
@@ -220,7 +228,7 @@ class _SignInPageState extends State<SignInPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppTheme.spacing12),
 
                 // Forgot Password
                 Align(
@@ -244,7 +252,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppTheme.spacing24),
 
                 // Sign In Button
                 ElevatedButton(
@@ -262,11 +270,11 @@ class _SignInPageState extends State<SignInPage> {
                         )
                       : const Text('Sign In'),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppTheme.spacing24),
 
                 // Divider
                 const DividerWithText(text: 'Or continue with'),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppTheme.spacing24),
 
                 // Social Sign In Buttons
                 SocialButton(
@@ -275,7 +283,7 @@ class _SignInPageState extends State<SignInPage> {
                   isLoading: _googleLoading,
                   onPressed: _handleGoogleSignIn,
                 ).build2(context),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacing16),
 
                 SocialButton(
                   label: 'Sign in with Apple',
@@ -285,7 +293,7 @@ class _SignInPageState extends State<SignInPage> {
                     // TODO: Implement Apple Sign In
                   },
                 ).build2(context),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppTheme.spacing32),
 
                 // Sign Up Link
                 AuthLink(
@@ -293,7 +301,7 @@ class _SignInPageState extends State<SignInPage> {
                   linkText: 'Sign up',
                   onTap: widget.onSignUpTap,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacing16),
               ],
             ),
           ),

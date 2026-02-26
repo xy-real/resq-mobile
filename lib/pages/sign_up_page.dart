@@ -196,7 +196,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withOpacity(0.1),
+                      color: AppTheme.errorRed.withValues(alpha: 0.1),
                       border: Border.all(color: AppTheme.errorRed),
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -305,7 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceBlue.withOpacity(0.5),
+                    color: AppTheme.surfaceBlue.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _termsAccepted

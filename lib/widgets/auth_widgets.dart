@@ -47,34 +47,75 @@ class _CustomTextFieldState extends State<CustomTextField> {
             color: AppTheme.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
+            letterSpacing: 0.25,
           ),
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: widget.controller,
-          keyboardType: widget.keyboardType,
-          obscureText: _obscureText,
-          maxLines: _obscureText ? 1 : widget.maxLines,
-          validator: widget.validator,
-          style: const TextStyle(color: AppTheme.textPrimary),
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            prefixIcon: widget.prefixIcon != null
-                ? Icon(widget.prefixIcon, color: AppTheme.textSecondary)
-                : null,
-            suffixIcon: widget.isPassword
-                ? GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                    child: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: AppTheme.textSecondary,
-                    ),
-                  )
-                : null,
+        const SizedBox(height: AppTheme.spacing8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: widget.controller,
+            keyboardType: widget.keyboardType,
+            obscureText: _obscureText,
+            maxLines: _obscureText ? 1 : widget.maxLines,
+            validator: widget.validator,
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              hintText: widget.hint,
+              prefixIcon: widget.prefixIcon != null
+                  ? Container(
+                      margin: const EdgeInsets.only(
+                        left: AppTheme.spacing12,
+                        right: AppTheme.spacing8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                      ),
+                      child: Icon(
+                        widget.prefixIcon,
+                        color: AppTheme.primaryBlue,
+                        size: 20,
+                      ),
+                    )
+                  : null,
+              suffixIcon: widget.isPassword
+                  ? GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                          right: AppTheme.spacing12,
+                          left: AppTheme.spacing8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        ),
+                        child: Icon(
+                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          color: AppTheme.textSecondary,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
           ),
         ),
       ],
@@ -100,43 +141,72 @@ class SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 48,
+      height: AppTheme.spacing48,
       decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.dividerColor),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppTheme.dividerColor,
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (!isLoading)
-                Icon(icon, color: AppTheme.textPrimary, size: 20),
-              if (!isLoading) const SizedBox(width: 12),
-              if (isLoading)
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryBlue,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacing16,
+              vertical: AppTheme.spacing12,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!isLoading) ...[
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spacing4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.textPrimary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: AppTheme.textPrimary,
+                      size: 18,
                     ),
                   ),
-                )
-              else
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(width: AppTheme.spacing12),
+                ],
+                if (isLoading)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryBlue,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.25,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -158,31 +228,62 @@ class DividerWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Divider(
-            color: AppTheme.dividerColor,
-            height: 1,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: AppTheme.spacing8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 1.5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    AppTheme.dividerColor.withValues(alpha: 0.5),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        const Expanded(
-          child: Divider(
-            color: AppTheme.dividerColor,
-            height: 1,
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacing16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacing12,
+              vertical: AppTheme.spacing4,
+            ),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceBlue,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              border: Border.all(
+                color: AppTheme.dividerColor,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Container(
+              height: 1.5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.dividerColor.withValues(alpha: 0.5),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -201,30 +302,46 @@ class AuthLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppTheme.textSecondary,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(width: 4),
-        GestureDetector(
-          onTap: onTap,
-          child: Text(
-            linkText,
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppTheme.spacing8,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text,
             style: const TextStyle(
-              color: AppTheme.primaryBlue,
+              color: AppTheme.textSecondary,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
-              decoration: TextDecoration.underline,
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: AppTheme.spacing4),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacing4,
+                vertical: AppTheme.spacing4,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              ),
+              child: Text(
+                linkText,
+                style: const TextStyle(
+                  color: AppTheme.primaryBlue,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppTheme.primaryBlue,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
