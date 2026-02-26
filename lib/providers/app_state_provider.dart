@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/location_service.dart';
+import '../services/status_service.dart';
 
 /// Represents the current state of the application
 class AppState {
@@ -103,20 +104,48 @@ class AppStateNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update the current status
+  /// Update the current status and send to backend
+  /// 
+  /// This method:
+  /// 1. Updates the status in Supabase backend via StatusService
+  /// 2. Updates local state with the new status
+  /// 3. Saves to local preferences for offline support
+  /// 
+  /// If location is available in the app state, it will be included
+  /// in the status update sent to the backend.
+  /// 
+  /// Throws an exception if the backend update fails.
   Future<void> updateStatus(String status) async {
-    final now = DateTime.now();
-    _state = _state.copyWith(
-      currentStatus: status,
-      lastUpdated: now,
-    );
+    try {
+      // Get the status service and current location
+      final statusService = StatusService();
+      final location = _state.currentLocation;
 
-    await Future.wait([
-      _prefs.setString(_currentStatusKey, status),
-      _prefs.setString(_lastUpdatedKey, now.toIso8601String()),
-    ]);
+      // Send status update to backend with optional location data
+      await statusService.updateStatus(
+        status: status,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        accuracy: location?.accuracy,
+      );
 
-    notifyListeners();
+      // Update local state and preferences after successful backend update
+      final now = DateTime.now();
+      _state = _state.copyWith(
+        currentStatus: status,
+        lastUpdated: now,
+      );
+
+      await Future.wait([
+        _prefs.setString(_currentStatusKey, status),
+        _prefs.setString(_lastUpdatedKey, now.toIso8601String()),
+      ]);
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating status: $e');
+      rethrow;
+    }
   }
 
   /// Update connectivity status
