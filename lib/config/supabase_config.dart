@@ -1,15 +1,17 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Supabase configuration for ResQ Mobile App
 /// 
-/// Replace these values with your actual Supabase project credentials.
-/// You can find these in your Supabase Dashboard under Settings → API.
+/// Credentials are loaded from .env file (not committed to git)
+/// Copy .env.example to .env and add your actual Supabase credentials
 class SupabaseConfig {
   /// Your Supabase project URL
   /// Format: https://xxxxxxxxxxxxx.supabase.co
-  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
+  static String get supabaseUrl => dotenv.env['SUPABASE_URL']!;
 
   /// Your Supabase anonymous key (safe for client-side use)
   /// This key is protected by Row Level Security (RLS) policies
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+  static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY']!;
 
   /// GPS polling interval when disaster mode is active (in seconds)
   static const int locationUpdateInterval = 300; // 5 minutes
