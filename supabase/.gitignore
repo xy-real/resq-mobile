@@ -1,0 +1,11 @@
+# Supabase local development
+.branches
+.temp
+.env
+.env.local
+
+# Supabase CLI config (contains project ID)
+config.toml
+
+# Generated files
+seed.sql
