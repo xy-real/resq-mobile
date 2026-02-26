@@ -59,6 +59,18 @@ class AppTheme {
   static const Color backgroundWarning = Color(0xFF78350f);
   static const Color backgroundInfo = Color(0xFF1e3a8a);
   
+  // ==================== Sign In Page Gradient & Accent Colors ====================
+  // Gradient colors for Sign In page (provides visual hierarchy and brand distinction)
+  static const Color signInGradientTopStart = Color(0xFF0f4c6b); // Teal-tinted dark blue for gradient top
+  static const Color signInGradientBottomEnd = Color(0xFF0a0e27); // Near black for gradient bottom
+  
+  // UI Accent Color (used for links, icons, and interactive elements on Sign In page)
+  static const Color accentCyan = Color(0xFF5b9fc6); // Light cyan-blue for contrast and visibility
+  
+  // Button Gradient Colors (for Sign In page primary action button)
+  static const Color buttonGradientStart = Color(0xFF00d4ff); // Bright cyan
+  static const Color buttonGradientEnd = Color(0xFF3b82f6); // Primary light blue
+
   // Backward compatibility aliases (old names)
   static const Color primaryBlue = primary;
   static const Color surfaceBlue = surface;
