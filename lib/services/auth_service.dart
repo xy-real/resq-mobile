@@ -107,24 +107,45 @@ class AuthService {
     }
   }
 
-  // Sign Out - Clear both Supabase and Google Sign-In sessions
+  /// Sign out and clear all authentication sessions
+  /// 
+  /// This method performs comprehensive logout by:
+  /// 1. Clearing Supabase authentication session
+  /// 2. Signing out and disconnecting Google Sign-In account
+  /// 
+  /// The auth state stream will automatically notify listeners of the logout,
+  /// allowing the UI to react and navigate to the login screen.
+  /// 
+  /// Throws an exception if Supabase sign-out fails, but Google sign-out errors
+  /// are logged and ignored to ensure logout can complete even if Google Sign-In
+  /// encounters issues.
   Future<void> signOut() async {
     try {
-      // Sign out from Supabase
+      // Sign out from Supabase - clears auth token and session
       await _supabase.auth.signOut();
 
       // Sign out from Google if initialized
       if (_googleSignInInitialized) {
         try {
+          // Sign out from Google
           await _googleSignIn.signOut();
+          
           // Also disconnect the account for extra security
+          // This ensures the next sign-in requires full authentication
           await _googleSignIn.disconnect();
+          
+          debugPrint('Successfully signed out from Google Sign-In');
         } catch (e) {
-          // Google sign-out might fail if not previously signed in, continue anyway
-          debugPrint('Google Sign-Out error: $e');
+          // Google sign-out might fail if not previously signed in with Google,
+          // or if Google Sign-In wasn't properly initialized. Log it but continue
+          // logout flow to prevent blocking the user.
+          debugPrint('Google Sign-Out warning (non-critical): $e');
         }
       }
+      
+      debugPrint('User successfully signed out');
     } catch (e) {
+      debugPrint('Sign-out error: $e');
       rethrow;
     }
   }
