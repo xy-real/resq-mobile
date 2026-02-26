@@ -78,26 +78,53 @@ class _SmsFallbackCardState extends State<SmsFallbackCard> {
     final smsBody = _generateSmsBody();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.spacing20),
       decoration: BoxDecoration(
-        color: AppTheme.warningOrange.withValues(alpha: 0.1),
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.backgroundWarning,
+            AppTheme.backgroundWarning.withValues(alpha: 0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         border: Border.all(
           color: AppTheme.warningOrange,
           width: 2,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.warningOrange.withValues(alpha: 0.3),
+            blurRadius: 16,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Header Section
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(AppTheme.spacing12),
                 decoration: BoxDecoration(
-                  color: AppTheme.warningOrange,
-                  borderRadius: BorderRadius.circular(6),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.warningOrange,
+                      AppTheme.warningOrange.withValues(alpha: 0.8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.warningOrange.withValues(alpha: 0.5),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.signal_cellular_off,
@@ -105,7 +132,7 @@ class _SmsFallbackCardState extends State<SmsFallbackCard> {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppTheme.spacing16),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,16 +140,18 @@ class _SmsFallbackCardState extends State<SmsFallbackCard> {
                     Text(
                       'Offline Mode Active',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.textPrimary,
+                        letterSpacing: 0.25,
                       ),
                     ),
+                    SizedBox(height: AppTheme.spacing4),
                     Text(
                       'Send status via SMS',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: AppTheme.textSecondary,
                       ),
                     ),
@@ -131,68 +160,121 @@ class _SmsFallbackCardState extends State<SmsFallbackCard> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.spacing20),
 
-          // SMS Format Box
+          // SMS Format Container
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppTheme.spacing16),
             decoration: BoxDecoration(
               color: AppTheme.backgroundDark,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppTheme.dividerColor),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(
+                color: AppTheme.dividerColor,
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'SMS Format',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
-                    letterSpacing: 0.5,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacing8,
+                    vertical: AppTheme.spacing4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.warningOrange.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    border: Border.all(
+                      color: AppTheme.warningOrange.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: const Text(
+                    'SMS FORMAT',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.warningOrange,
+                      letterSpacing: 1.0,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                SelectableText(
-                  smsBody,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.lightBlue,
-                    fontFamily: 'monospace',
-                    letterSpacing: 0.5,
+                const SizedBox(height: AppTheme.spacing12),
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacing12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceBlue.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    border: Border.all(
+                      color: AppTheme.lightBlue.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: SelectableText(
+                    smsBody,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.lightBlue,
+                      fontFamily: 'monospace',
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.spacing20),
 
-          // Buttons
+          // Action Buttons
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Open SMS button
-              ElevatedButton.icon(
-                onPressed: _openSmsApp,
-                icon: const Icon(Icons.sms),
-                label: const Text('Open SMS App'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.warningOrange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              // Primary SMS button
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.warningOrange.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _openSmsApp,
+                  icon: const Icon(Icons.sms_outlined, size: 20),
+                  label: const Text('Open SMS App'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.warningOrange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.spacing16,
+                      horizontal: AppTheme.spacing20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppTheme.spacing12),
 
-              // Copy to clipboard button
+              // Secondary copy button
               OutlinedButton.icon(
                 onPressed: _copyToClipboard,
-                icon: const Icon(Icons.content_copy),
+                icon: const Icon(Icons.content_copy_outlined, size: 18),
                 label: const Text('Copy Format'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.warningOrange,
@@ -200,31 +282,54 @@ class _SmsFallbackCardState extends State<SmsFallbackCard> {
                     color: AppTheme.warningOrange,
                     width: 1.5,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppTheme.spacing12,
+                    horizontal: AppTheme.spacing20,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.25,
                   ),
                 ),
               ),
             ],
           ),
+          const SizedBox(height: AppTheme.spacing16),
 
-          // Help text
-          const SizedBox(height: 12),
+          // Help Information
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppTheme.spacing12),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceBlue,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text(
-              'Send the SMS message above to activate your status when offline. The message will be processed once you regain connectivity.',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-                height: 1.4,
+              color: AppTheme.surfaceElevated.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(
+                color: AppTheme.dividerColor.withValues(alpha: 0.5),
               ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: AppTheme.textSecondary,
+                ),
+                const SizedBox(width: AppTheme.spacing8),
+                const Expanded(
+                  child: Text(
+                    'Send the SMS message above to activate your status when offline. The message will be processed once you regain connectivity.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

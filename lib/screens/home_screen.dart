@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacing16),
               child: Column(
                 children: [
                   // Disaster Mode Banner
@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       appStateNotifier.setDisasterMode(_devDisasterMode);
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
 
                   // Status Header
                   StatusHeader(
@@ -257,69 +257,73 @@ class _HomeScreenState extends State<HomeScreen> {
                     lastUpdated: state.lastUpdated,
                     isConnected: state.isConnected,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing24),
 
-                  // Status Buttons Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surfaceBlue,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.dividerColor),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Select Your Status',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
+                  // Status Buttons Section - Clean, minimal layout
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Section header: clear visual hierarchy
+                      Text(
+                        'Select Your Status',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: 0.3,
                         ),
-                        const SizedBox(height: 8),
-                        // SAFE Button
-                        StatusButton(
-                          status: StatusOption.safe,
-                          isActive: state.currentStatus == 'SAFE',
-                          isLoading: _isLoadingStatus && state.currentStatus == 'SAFE',
-                          onPressed: () => _updateStatus('SAFE'),
+                      ),
+                      const SizedBox(height: 8),
+                      // Descriptive subtitle with smaller font
+                      Text(
+                        'Choose the option that best describes your current situation',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: AppTheme.textSecondary,
+                          letterSpacing: 0.2,
                         ),
-                        const SizedBox(height: 12),
-                        // NEEDS ASSISTANCE Button
-                        StatusButton(
-                          status: StatusOption.needsAssistance,
-                          isActive: state.currentStatus == 'NEEDS ASSISTANCE',
-                          isLoading: _isLoadingStatus && state.currentStatus == 'NEEDS ASSISTANCE',
-                          onPressed: () => _updateStatus('NEEDS ASSISTANCE'),
-                        ),
-                        const SizedBox(height: 12),
-                        // CRITICAL Button
-                        StatusButton(
-                          status: StatusOption.critical,
-                          isActive: state.currentStatus == 'CRITICAL',
-                          isLoading: _isLoadingStatus && state.currentStatus == 'CRITICAL',
-                          onPressed: () => _updateStatus('CRITICAL'),
-                        ),
-                        const SizedBox(height: 12),
-                        // EVACUATED Button
-                        StatusButton(
-                          status: StatusOption.evacuated,
-                          isActive: state.currentStatus == 'EVACUATED',
-                          isLoading: _isLoadingStatus && state.currentStatus == 'EVACUATED',
-                          onPressed: () => _updateStatus('EVACUATED'),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: AppTheme.spacing20),
+
+                      // Four equal full-width status buttons arranged vertically
+                      StatusButton(
+                        status: StatusOption.safe,
+                        isActive: state.currentStatus == StatusOption.safe.backendValue,
+                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.safe.backendValue,
+                        onPressed: () => _updateStatus(StatusOption.safe.backendValue),
+                      ),
+                      const SizedBox(height: 12),
+                      StatusButton(
+                        status: StatusOption.needsAssistance,
+                        isActive: state.currentStatus == StatusOption.needsAssistance.backendValue,
+                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.needsAssistance.backendValue,
+                        onPressed: () => _updateStatus(StatusOption.needsAssistance.backendValue),
+                      ),
+                      const SizedBox(height: 12),
+                      StatusButton(
+                        status: StatusOption.critical,
+                        isActive: state.currentStatus == StatusOption.critical.backendValue,
+                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.critical.backendValue,
+                        onPressed: () => _updateStatus(StatusOption.critical.backendValue),
+                      ),
+                      const SizedBox(height: 12),
+                      StatusButton(
+                        status: StatusOption.evacuated,
+                        isActive: state.currentStatus == StatusOption.evacuated.backendValue,
+                        isLoading: _isLoadingStatus && state.currentStatus == StatusOption.evacuated.backendValue,
+                        onPressed: () => _updateStatus(StatusOption.evacuated.backendValue),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing20),
 
                   // Location Section
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppTheme.spacing16),
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceBlue,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                       border: Border.all(color: AppTheme.dividerColor),
                     ),
                     child: Column(
@@ -328,10 +332,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(AppTheme.spacing8),
                               decoration: BoxDecoration(
                                 color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                               ),
                               child: const Icon(
                                 Icons.location_on,
@@ -339,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: 18,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppTheme.spacing8),
                             const Text(
                               'Location Sharing',
                               style: TextStyle(
@@ -350,12 +354,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppTheme.spacing12),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(AppTheme.spacing12),
                           decoration: BoxDecoration(
                             color: AppTheme.backgroundDark,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                             border: Border.all(color: AppTheme.dividerColor),
                           ),
                           child: Row(
@@ -376,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   if (_lastLocationUpdate != null)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 4),
+                                      padding: const EdgeInsets.only(top: AppTheme.spacing4),
                                       child: Text(
                                         'Updated ${TimeFormatter.formatTimeAgo(_lastLocationUpdate)}',
                                         style: const TextStyle(
@@ -398,8 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppTheme.successGreen,
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 8,
+                                        horizontal: AppTheme.spacing8,
+                                        vertical: AppTheme.spacing8,
                                       ),
                                     ),
                                   ),
@@ -407,13 +411,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppTheme.spacing12),
                         if (_locationPermissionStatus.isDenied)
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(AppTheme.spacing10),
                             decoration: BoxDecoration(
-                              color: AppTheme.warningOrange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(6),
+                              color: AppTheme.backgroundWarning,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                               border: Border.all(color: AppTheme.warningOrange),
                             ),
                             child: Row(
@@ -423,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: AppTheme.warningOrange,
                                   size: 16,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: AppTheme.spacing8),
                                 const Expanded(
                                   child: Text(
                                     'Location permission required to share your location with responders',
@@ -440,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
 
                   // SMS Fallback Card (only show when offline)
                   SmsFallbackCard(
@@ -448,15 +452,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     studentId: state.studentId,
                     currentStatus: state.currentStatus,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
 
                   // Additional info when offline
                   if (!state.isConnected)
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(AppTheme.spacing12),
                       decoration: BoxDecoration(
-                        color: AppTheme.errorRed.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppTheme.backgroundError,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                         border: Border.all(color: AppTheme.errorRed),
                       ),
                       child: Row(
@@ -466,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: AppTheme.errorRed,
                             size: 18,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppTheme.spacing8),
                           const Expanded(
                             child: Text(
                               'No internet connection. Your status will sync when connection is restored.',
@@ -481,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppTheme.spacing8),
                 ],
               ),
             ),
