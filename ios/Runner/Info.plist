@@ -45,6 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ResQ needs your location to help emergency responders find you during a disaster.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ResQ needs your location to help emergency responders find you during a disaster.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

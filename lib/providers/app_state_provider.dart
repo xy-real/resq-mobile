@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/location_service.dart';
 
 /// Represents the current state of the application
 class AppState {
@@ -10,6 +11,7 @@ class AppState {
   final bool isConnected;
   final bool locationEnabled;
   final DateTime? lastLocationUpdate;
+  final LocationData? currentLocation;
 
   AppState({
     required this.studentId,
@@ -19,6 +21,7 @@ class AppState {
     this.isConnected = true,
     this.locationEnabled = false,
     this.lastLocationUpdate,
+    this.currentLocation,
   });
 
   /// Create a copy of this state with some fields replaced
@@ -30,6 +33,7 @@ class AppState {
     bool? isConnected,
     bool? locationEnabled,
     DateTime? lastLocationUpdate,
+    LocationData? currentLocation,
   }) {
     return AppState(
       studentId: studentId ?? this.studentId,
@@ -39,6 +43,7 @@ class AppState {
       isConnected: isConnected ?? this.isConnected,
       locationEnabled: locationEnabled ?? this.locationEnabled,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
+      currentLocation: currentLocation ?? this.currentLocation,
     );
   }
 
@@ -50,7 +55,8 @@ class AppState {
       'disasterMode: $disasterMode, '
       'isConnected: $isConnected, '
       'locationEnabled: $locationEnabled, '
-      'lastLocationUpdate: $lastLocationUpdate)';
+      'lastLocationUpdate: $lastLocationUpdate, '
+      'currentLocation: $currentLocation)';
 }
 
 /// Notifier for managing app state and persistence
@@ -140,6 +146,17 @@ class AppStateNotifier extends ChangeNotifier {
   /// Update last location update time
   void setLastLocationUpdate(DateTime dateTime) {
     _state = _state.copyWith(lastLocationUpdate: dateTime);
+    notifyListeners();
+  }
+
+  /// Update current location data
+  void setCurrentLocation(LocationData? locationData) {
+    if (locationData != null) {
+      _state = _state.copyWith(
+        currentLocation: locationData,
+        lastLocationUpdate: locationData.timestamp,
+      );
+    }
     notifyListeners();
   }
 

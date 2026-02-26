@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Ensure the app can access network on device (required for Supabase, etc.) -->
+    <!-- Network permission for Supabase and other services -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Location permissions for GPS functionality -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="resq_mobile"
         android:name="${applicationName}"

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/disaster_mode_banner.dart';
@@ -9,6 +8,7 @@ import '../widgets/status_header.dart';
 import '../widgets/status_button.dart';
 import '../widgets/sms_fallback_card.dart';
 import '../providers/app_state_provider.dart';
+import '../services/location_service.dart';
 import '../utils/time_formatter.dart';
 
 /// Main home/status screen for the RESQ Mobile app
@@ -24,8 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   bool _devDisasterMode = false;
   bool _isLoadingStatus = false;
-  PermissionStatus _locationPermissionStatus = PermissionStatus.denied;
-  DateTime? _lastLocationUpdate;
 
   @override
   void initState() {
@@ -64,41 +62,121 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _checkLocationPermission() async {
     try {
-      final status = await Permission.location.status;
+      final permission = await LocationService.getPermissionStatus();
       if (mounted) {
-        setState(() {
-          _locationPermissionStatus = status;
-          if (status.isGranted) {
-            appStateProvider.setLocationEnabled(true);
-            _lastLocationUpdate = DateTime.now();
-            appStateProvider.setLastLocationUpdate(_lastLocationUpdate!);
-          }
-        });
+        if (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always) {
+          // Permission already granted, enable location and fetch
+          appStateProvider.setLocationEnabled(true);
+          await _fetchCurrentLocation();
+        }
       }
     } catch (e) {
       debugPrint('Error checking location permission: $e');
     }
   }
 
+  /// Fetch current GPS location from device
+  Future<void> _fetchCurrentLocation() async {
+    try {
+      final location = await LocationService.getCurrentLocation();
+      if (location != null && mounted) {
+        appStateProvider.setCurrentLocation(location);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Location updated: ${location.displayString}'),
+              backgroundColor: AppTheme.statusSafe,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to get location. Check permissions.'),
+            backgroundColor: AppTheme.statusCritical,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error fetching location: $e'),
+            backgroundColor: AppTheme.statusCritical,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _requestLocationPermission() async {
     try {
-      final status = await Permission.location.request();
+      // First check if location services are enabled on device
+      final serviceEnabled = await LocationService.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Location services are disabled. Please enable them in device settings.',
+              ),
+              backgroundColor: AppTheme.statusCritical,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Request permission using geolocator
+      final permission = await LocationService.requestPermission();
+      
       if (mounted) {
-        setState(() {
-          _locationPermissionStatus = status;
-          if (status.isGranted) {
-            appStateProvider.setLocationEnabled(true);
-            _lastLocationUpdate = DateTime.now();
-            appStateProvider.setLastLocationUpdate(_lastLocationUpdate!);
+        if (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always) {
+          // Permission granted - enable location sharing and fetch location
+          appStateProvider.setLocationEnabled(true);
+          await _fetchCurrentLocation();
+        } else if (permission == LocationPermission.denied) {
+          // Permission denied by user
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Location permission is required to enable location sharing. Please try again.',
+                ),
+                backgroundColor: AppTheme.statusNeedsHelp,
+                duration: Duration(seconds: 3),
+              ),
+            );
           }
-        });
+        } else if (permission == LocationPermission.deniedForever) {
+          // Permission permanently denied - open app settings
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Location permission permanently denied. Opening app settings...',
+                ),
+                backgroundColor: AppTheme.statusCritical,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          await LocationService.openAppSettings();
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error requesting permission: $e'),
-            backgroundColor: AppTheme.errorRed,
+            backgroundColor: AppTheme.statusCritical,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -419,6 +497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: AppTheme.spacing16),
                         // Location status display
                         Container(
+                          width: double.infinity,
                           padding: const EdgeInsets.all(AppTheme.spacing16),
                           decoration: BoxDecoration(
                             color: AppTheme.surface,
@@ -429,11 +508,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 1,
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              // Status row
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     state.locationEnabled ? 'ON' : 'OFF',
@@ -445,76 +526,132 @@ class _HomeScreenState extends State<HomeScreen> {
                                           : AppTheme.textSecondary,
                                     ),
                                   ),
-                                  if (_lastLocationUpdate != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: AppTheme.spacing4),
-                                      child: Text(
-                                        'Updated ${TimeFormatter.formatTimeAgo(_lastLocationUpdate)}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppTheme.textMuted,
+                                  if (state.locationEnabled)
+                                    Tooltip(
+                                      message: 'Refresh location',
+                                      child: IconButton(
+                                        onPressed: _fetchCurrentLocation,
+                                        icon: const Icon(
+                                          Icons.refresh,
+                                          size: 18,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
                                         ),
                                       ),
                                     ),
                                 ],
                               ),
-                              if (!state.locationEnabled)
-                                SizedBox(
-                                  width: 110,
-                                  child: ElevatedButton.icon(
-                                    onPressed: _requestLocationPermission,
-                                    icon: const Icon(Icons.check, size: 16),
-                                    label: const Text('Enable'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.statusSafe,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppTheme.spacing8,
-                                        vertical: AppTheme.spacing8,
+                              if (state.currentLocation != null) ...[
+                                const SizedBox(height: AppTheme.spacing12),
+                                // GPS Coordinates display
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(
+                                      AppTheme.spacing12),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.backgroundDark,
+                                    borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusSmall),
+                                    border: Border.all(
+                                      color: AppTheme.primary
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Coordinates',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textSecondary,
+                                          letterSpacing: 0.5,
+                                        ),
                                       ),
+                                      const SizedBox(height: 4),
+                                      SelectableText(
+                                        state.currentLocation!.displayString,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppTheme.primary,
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
+                                      if (state
+                                              .currentLocation!.accuracy !=
+                                          null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: AppTheme.spacing8),
+                                          child: Text(
+                                            'Accuracy: ${state.currentLocation!.accuracy!.toStringAsFixed(1)}m',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: AppTheme.textMuted,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              if (state.currentLocation != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: AppTheme.spacing8),
+                                  child: Text(
+                                    'Updated ${TimeFormatter.formatTimeAgo(state.currentLocation!.timestamp)}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppTheme.textMuted,
                                     ),
                                   ),
                                 ),
                             ],
                           ),
                         ),
-                        // Permission warning only if needed
-                        if (_locationPermissionStatus.isDenied) ...[
-                          const SizedBox(height: AppTheme.spacing12),
-                          Container(
-                            padding: const EdgeInsets.all(AppTheme.spacing12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.statusNeedsHelp.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusSmall),
-                              border: Border.all(
-                                color: AppTheme.statusNeedsHelp
-                                    .withValues(alpha: 0.3),
+                        const SizedBox(height: AppTheme.spacing16),
+                        // Action buttons
+                        if (!state.locationEnabled)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _requestLocationPermission,
+                              icon: const Icon(Icons.location_on, size: 18),
+                              label: const Text('Enable Location Sharing'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.statusSafe,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppTheme.spacing16,
+                                  vertical: AppTheme.spacing12,
+                                ),
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  color: AppTheme.statusNeedsHelp,
-                                  size: 16,
+                          )
+                        else
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _fetchCurrentLocation,
+                              icon: const Icon(Icons.my_location, size: 18),
+                              label: const Text('Update Location'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppTheme.spacing16,
+                                  vertical: AppTheme.spacing12,
                                 ),
-                                const SizedBox(width: AppTheme.spacing8),
-                                const Expanded(
-                                  child: Text(
-                                    'Enable location to share your position with responders',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppTheme.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                        ],
+                        // Permission feedback is shown via SnackBar in _requestLocationPermission
                       ],
                     ),
                   ),
