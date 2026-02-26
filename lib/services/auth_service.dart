@@ -98,7 +98,7 @@ class AuthService {
       }
 
       return await _supabase.auth.signInWithIdToken(
-        provider: Provider.google,
+        provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
       );
