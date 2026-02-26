@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/auth_wrapper.dart';
 import 'providers/app_state_provider.dart';
+import 'providers/auth_provider.dart';
+import 'services/profile_completion_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +18,15 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
+  // Initialize profile completion service
+  final profileService = ProfileCompletionService();
+  await profileService.initialize();
+
   // Initialize app state provider
   await initializeAppState();
+
+  // Initialize auth notifier
+  await initializeAuthNotifier();
   
   runApp(const MyApp());
 }
@@ -29,8 +38,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AppStateNotifier>.value(
-      value: appStateProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppStateNotifier>.value(
+          value: appStateProvider,
+        ),
+        ChangeNotifierProvider<AuthNotifier>.value(
+          value: authNotifier,
+        ),
+      ],
       child: MaterialApp(
         title: 'RESQ Mobile',
         theme: AppTheme.darkTheme,
