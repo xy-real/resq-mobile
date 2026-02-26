@@ -148,8 +148,8 @@ class _SignInPageState extends State<SignInPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF0f4c6b).withValues(alpha: 0.95),
-              const Color(0xFF0a0e27),
+              AppTheme.signInGradientTopStart.withValues(alpha: 0.95),
+              AppTheme.signInGradientBottomEnd,
             ],
             stops: const [0.0, 1.0],
           ),
@@ -175,7 +175,7 @@ class _SignInPageState extends State<SignInPage> {
                   Text(
                     'ResQ',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: const Color(0xFF5b9fc6),
+                      color: AppTheme.accentCyan,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                       fontSize: 28,
@@ -305,14 +305,14 @@ class _SignInPageState extends State<SignInPage> {
                                 fillColor: WidgetStateProperty.resolveWith(
                                   (states) {
                                     if (states.contains(WidgetState.selected)) {
-                                      return const Color(0xFF5b9fc6);
+                                      return AppTheme.accentCyan;
                                     }
                                     return Colors.transparent;
                                   },
                                 ),
                                 side: BorderSide(
                                   color: _rememberMe
-                                      ? const Color(0xFF5b9fc6)
+                                      ? AppTheme.accentCyan
                                       : AppTheme.border,
                                   width: 1.5,
                                 ),
@@ -345,7 +345,7 @@ class _SignInPageState extends State<SignInPage> {
                         child: const Text(
                           'Forgotten Password?',
                           style: TextStyle(
-                            color: Color(0xFF5b9fc6),
+                            color: AppTheme.accentCyan,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -359,17 +359,17 @@ class _SignInPageState extends State<SignInPage> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF00d4ff),
-                          Color(0xFF3b82f6),
+                          AppTheme.buttonGradientStart,
+                          AppTheme.buttonGradientEnd,
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF3b82f6).withValues(alpha: 0.4),
+                          color: AppTheme.buttonGradientEnd.withValues(alpha: 0.4),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -466,7 +466,7 @@ class _SignInPageState extends State<SignInPage> {
                         child: const Text(
                           'Create Account',
                           style: TextStyle(
-                            color: Color(0xFF5b9fc6),
+                            color: AppTheme.accentCyan,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
@@ -542,7 +542,7 @@ class _SignInPageState extends State<SignInPage> {
               padding: const EdgeInsets.only(left: AppTheme.spacing16, right: AppTheme.spacing12),
               child: Icon(
                 prefixIcon,
-                color: const Color(0xFF5b9fc6),
+                color: AppTheme.accentCyan,
                 size: 20,
               ),
             ),
@@ -586,7 +586,7 @@ class _SignInPageState extends State<SignInPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               borderSide: const BorderSide(
-                color: Color(0xFF5b9fc6),
+                color: AppTheme.accentCyan,
                 width: 2,
               ),
             ),
@@ -649,7 +649,7 @@ class _SignInPageState extends State<SignInPage> {
                     padding: const EdgeInsets.only(right: AppTheme.spacing8),
                     child: Icon(
                       icon,
-                      color: const Color(0xFF5b9fc6),
+                      color: AppTheme.accentCyan,
                       size: 20,
                     ),
                   ),
@@ -662,7 +662,7 @@ class _SignInPageState extends State<SignInPage> {
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          const Color(0xFF5b9fc6).withValues(alpha: 0.8),
+                          AppTheme.accentCyan.withValues(alpha: 0.8),
                         ),
                       ),
                     ),
