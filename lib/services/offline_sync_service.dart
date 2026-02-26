@@ -1,7 +1,7 @@
 import 'dart:async';
 import '../config/supabase_config.dart';
 import 'status_service.dart';
-import 'connectivity_helper.dart';
+import '../utils/connectivity_helper.dart';
 
 /// Service for managing offline status updates and auto-sync
 class OfflineSyncService {

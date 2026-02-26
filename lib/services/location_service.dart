@@ -42,10 +42,7 @@ class LocationService {
 
       // Get current position with balanced accuracy for battery efficiency
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          distanceFilter: 100, // Only update if moved 100m
-        ),
+        desiredAccuracy: LocationAccuracy.medium,
       );
 
       _lastPosition = position;

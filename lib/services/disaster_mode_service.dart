@@ -52,10 +52,8 @@ class DisasterModeService {
           table: 'system_settings',
           callback: (payload) {
             final newData = payload.newRecord;
-            if (newData != null) {
-              _currentSettings = SystemSettings.fromJson(newData);
-              _settingsController.add(_currentSettings!);
-            }
+            _currentSettings = SystemSettings.fromJson(newData);
+            _settingsController.add(_currentSettings!);
           },
         )
         .subscribe();

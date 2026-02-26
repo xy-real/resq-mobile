@@ -5,7 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 class ConnectivityHelper {
   final Connectivity _connectivity = Connectivity();
   final _connectivityController = StreamController<bool>.broadcast();
-  StreamSubscription<List<ConnectivityResult>>? _subscription;
+  StreamSubscription<ConnectivityResult>? _subscription;
   bool _isConnected = true;
 
   /// Initialize connectivity monitoring
@@ -15,16 +15,16 @@ class ConnectivityHelper {
     
     // Listen to connectivity changes
     _subscription = _connectivity.onConnectivityChanged.listen(
-      (List<ConnectivityResult> results) {
-        _handleConnectivityChange(results);
+      (ConnectivityResult result) {
+        _handleConnectivityChange(result);
       },
     );
   }
 
   /// Handle connectivity state changes
-  void _handleConnectivityChange(List<ConnectivityResult> results) {
+  void _handleConnectivityChange(ConnectivityResult result) {
     final wasConnected = _isConnected;
-    _isConnected = _hasConnection(results);
+    _isConnected = _hasConnection(result);
 
     // Only emit if connection state actually changed
     if (wasConnected != _isConnected) {
@@ -32,20 +32,18 @@ class ConnectivityHelper {
     }
   }
 
-  /// Check if any of the results indicates a connection
-  bool _hasConnection(List<ConnectivityResult> results) {
-    return results.any((result) => 
-      result == ConnectivityResult.mobile ||
-      result == ConnectivityResult.wifi ||
-      result == ConnectivityResult.ethernet
-    );
+  /// Check if result indicates a connection
+  bool _hasConnection(ConnectivityResult result) {
+    return result == ConnectivityResult.mobile ||
+        result == ConnectivityResult.wifi ||
+        result == ConnectivityResult.ethernet;
   }
 
   /// Check current connection status
   Future<bool> checkConnection() async {
     try {
-      final results = await _connectivity.checkConnectivity();
-      return _hasConnection(results);
+      final result = await _connectivity.checkConnectivity();
+      return _hasConnection(result);
     } catch (e) {
       return false;
     }
@@ -60,13 +58,13 @@ class ConnectivityHelper {
   /// Get connection type
   Future<String> getConnectionType() async {
     try {
-      final results = await _connectivity.checkConnectivity();
+      final result = await _connectivity.checkConnectivity();
       
-      if (results.contains(ConnectivityResult.wifi)) {
+      if (result == ConnectivityResult.wifi) {
         return 'WiFi';
-      } else if (results.contains(ConnectivityResult.mobile)) {
+      } else if (result == ConnectivityResult.mobile) {
         return 'Mobile Data';
-      } else if (results.contains(ConnectivityResult.ethernet)) {
+      } else if (result == ConnectivityResult.ethernet) {
         return 'Ethernet';
       } else {
         return 'Offline';
