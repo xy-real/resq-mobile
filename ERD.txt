@@ -1,0 +1,463 @@
+================================================================================
+                    ResQ DISASTER RESPONSE SYSTEM
+                    ENTITY RELATIONSHIP DIAGRAM (ERD)
+                    WITH ROW-LEVEL SECURITY POLICIES
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                            TABLE RELATIONSHIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        ┌─────────────────┐
+                        │   auth.users    │
+                        │   (Supabase)    │
+                        └─────────────────┘
+                               │   │
+                    ┌──────────┘   └──────────┐
+                    │ (1:1)             (1:1) │
+                    ▼                          ▼
+        ┌───────────────────────┐   ┌──────────────────┐
+        │      STUDENTS         │   │      ADMINS      │
+        ├───────────────────────┤   ├──────────────────┤
+        │ PK: student_id (TEXT) │   │ PK: id (UUID)    │
+        │ FK: user_id (UUID)    │   │ FK: user_id (UUID)│
+        │     email (TEXT)      │   │     email (TEXT) │
+        │     name (TEXT)       │   │     name (TEXT)  │
+        │     ...               │   └──────────────────┘
+        └───────────────────────┘
+                    │
+                    │ (1:many)
+                    ▼
+        ┌───────────────────────┐
+        │    STATUS_LOGS        │
+        ├───────────────────────┤
+        │ PK: id (UUID)         │
+        │ FK: student_id (TEXT) │
+        │     status (TEXT)     │
+        │     timestamp         │
+        │     source (TEXT)     │
+        └───────────────────────┘
+
+
+        ┌────────────────────────┐      ┌──────────────────────┐
+        │  EVACUATION_CENTERS    │      │   SYSTEM_SETTINGS    │
+        ├────────────────────────┤      ├──────────────────────┤
+        │ PK: id (UUID)          │      │ PK: id (INT) = 1     │
+        │     center_name (TEXT) │      │     is_disaster_mode │
+        │     latitude (DECIMAL) │      │     mode_activated_at│
+        │     longitude (DECIMAL)│      └──────────────────────┘
+        └────────────────────────┘      (Singleton Table)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                            DETAILED TABLE SCHEMAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ TABLE: STUDENTS                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Description: Primary user directory containing all registered students │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Column Name                  │ Type            │ Constraints            │
+├──────────────────────────────┼─────────────────┼────────────────────────┤
+│ student_id                   │ TEXT            │ PRIMARY KEY            │
+│ user_id                      │ UUID            │ UNIQUE, FK auth.users  │
+│ email                        │ TEXT            │ UNIQUE                 │
+│ name                         │ TEXT            │ NOT NULL               │
+│ contact_number               │ TEXT            │                        │
+│ home_lat                     │ DECIMAL(10,8)   │                        │
+│ home_lng                     │ DECIMAL(11,8)   │                        │
+│ registered_home_risk_label   │ TEXT            │                        │
+│ last_known_lat               │ DECIMAL(10,8)   │                        │
+│ last_known_lng               │ DECIMAL(11,8)   │                        │
+│ last_status                  │ TEXT            │ DEFAULT 'UNKNOWN'      │
+│ last_update_timestamp        │ TIMESTAMPTZ     │                        │
+│ last_update_source           │ TEXT            │ CHECK (APP/SMS)        │
+└──────────────────────────────┴─────────────────┴────────────────────────┘
+Status Values: SAFE, NEEDS_ASSISTANCE, CRITICAL, EVACUATED, UNKNOWN
+
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ TABLE: STATUS_LOGS                                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Description: Append-only audit ledger of all status updates            │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Column Name          │ Type            │ Constraints                    │
+├──────────────────────┼─────────────────┼────────────────────────────────┤
+│ id                   │ UUID            │ PRIMARY KEY                    │
+│ student_id           │ TEXT            │ FK students(student_id)        │
+│ status               │ TEXT            │ NOT NULL                       │
+│ timestamp            │ TIMESTAMPTZ     │ DEFAULT NOW()                  │
+│ source               │ TEXT            │ NOT NULL (APP/SMS)             │
+│ validation_flag      │ BOOLEAN         │ DEFAULT TRUE                   │
+└──────────────────────┴─────────────────┴────────────────────────────────┘
+Purpose: Complete audit trail for status changes and analytics
+Note: validation_flag = FALSE for malformed SMS messages
+
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ TABLE: EVACUATION_CENTERS                                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Description: Locations of designated evacuation sites                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Column Name          │ Type            │ Constraints                    │
+├──────────────────────┼─────────────────┼────────────────────────────────┤
+│ id                   │ UUID            │ PRIMARY KEY                    │
+│ center_name          │ TEXT            │ NOT NULL                       │
+│ latitude             │ DECIMAL(10,8)   │ NOT NULL                       │
+│ longitude            │ DECIMAL(11,8)   │ NOT NULL                       │
+└──────────────────────┴─────────────────┴────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ TABLE: SYSTEM_SETTINGS (Singleton)                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Description: Global configuration for disaster mode (single-row table) │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Column Name             │ Type         │ Constraints                    │
+├─────────────────────────┼──────────────┼────────────────────────────────┤
+│ id                      │ INTEGER      │ PRIMARY KEY DEFAULT 1          │
+│ is_disaster_mode_active │ BOOLEAN      │ DEFAULT FALSE                  │
+│ mode_activated_at       │ TIMESTAMPTZ  │                                │
+└─────────────────────────┴──────────────┴────────────────────────────────┘
+Note: Only one row exists (id = 1), enforced by CHECK constraint
+
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ TABLE: ADMINS                                                           │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Description: Authorized admin users for dashboard access               │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Column Name          │ Type            │ Constraints                    │
+├──────────────────────┼─────────────────┼────────────────────────────────┤
+│ id                   │ UUID            │ PRIMARY KEY                    │
+│ user_id              │ UUID            │ UNIQUE, FK auth.users(id)      │
+│ email                │ TEXT            │ UNIQUE, NOT NULL               │
+│ name                 │ TEXT            │                                │
+└──────────────────────┴─────────────────┴────────────────────────────────┘
+Note: All admins have equal privileges (no role differentiation)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                      ROW-LEVEL SECURITY (RLS) POLICIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════════════════
+  STUDENTS TABLE POLICIES
+═══════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: students_select_own                                           │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  auth.uid() = user_id                                      │
+│ Purpose:    Students can only view their own record                   │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: students_update_own_status                                    │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  UPDATE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  auth.uid() = user_id                                      │
+│ Columns:    last_known_lat, last_known_lng, last_status,             │
+│             last_update_timestamp, last_update_source                 │
+│ Purpose:    Students can update their status and location only        │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: students_insert_own                                           │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  auth.uid() = user_id                                      │
+│ Purpose:    Students can create their own record during registration  │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_select_all_students                                    │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can view all student records                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_update_all_students                                    │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  UPDATE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can manually override student data                 │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════
+  STATUS_LOGS TABLE POLICIES
+═══════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: students_insert_own_logs                                      │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  student_id IN (SELECT s.student_id FROM students s       │
+│                            WHERE s.user_id = auth.uid())              │
+│ Purpose:    Students can create log entries for themselves            │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: students_select_own_logs                                      │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  student_id IN (SELECT s.student_id FROM students s       │
+│                            WHERE s.user_id = auth.uid())              │
+│ Purpose:    Students can view their own status history                │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_select_all_logs                                        │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can view all status logs for analytics             │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_insert_logs                                            │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can insert logs (manual overrides, SMS gateway)    │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════
+  EVACUATION_CENTERS TABLE POLICIES
+═══════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: public_select_centers                                         │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  true                                                      │
+│ Purpose:    All authenticated users can view evacuation centers       │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_insert_centers                                         │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can create new evacuation centers                  │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_update_centers                                         │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  UPDATE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can update evacuation center information           │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_delete_centers                                         │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  DELETE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can remove evacuation centers                      │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════
+  SYSTEM_SETTINGS TABLE POLICIES
+═══════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: public_select_settings                                        │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  true                                                      │
+│ Purpose:    All users need to know if disaster mode is active         │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_update_settings                                        │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  UPDATE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can toggle disaster mode                           │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════
+  ADMINS TABLE POLICIES
+═══════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_select_own                                             │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  SELECT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  auth.uid() = user_id                                      │
+│ Purpose:    Admins can view their own record                          │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_insert_own                                             │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  auth.uid() = user_id                                      │
+│ Purpose:    Admins can create their own record during registration    │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_insert_admins                                          │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  INSERT                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can add other admins                               │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_update_admins                                          │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  UPDATE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can update other admin records                     │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────┐
+│ Policy: admins_delete_admins                                          │
+├───────────────────────────────────────────────────────────────────────┤
+│ Operation:  DELETE                                                    │
+│ For:        authenticated users                                       │
+│ Condition:  EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid())  │
+│ Purpose:    Admins can remove other admins                            │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                        AUTHENTICATION & SECURITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SUPABASE AUTH INTEGRATION:
+───────────────────────────────────────────────────────────────────────────
+• auth.users table managed by Supabase (not in this schema)
+• Passwords securely hashed and stored by Supabase Auth
+• user_id in STUDENTS and ADMINS links to auth.users(id)
+• Two authentication methods supported:
+  1. Google OAuth (automatic email verification)
+  2. Email/Password (requires email verification via Gmail)
+
+REGISTRATION FLOW:
+───────────────────────────────────────────────────────────────────────────
+For Students:
+  1. User signs up via Google OAuth or email/password
+  2. Account created in auth.users (Supabase managed)
+  3. Email verification (for email/password signups)
+  4. User completes registration form
+  5. Record inserted into STUDENTS table with:
+     - user_id = auth.uid() (links to authenticated user)
+     - student_id = university ID (from form)
+     - email = from auth user
+     - name = from form
+
+For Admins:
+  1. Same authentication flow as students
+  2. Record inserted into ADMINS table
+  3. All admins have equal privileges
+
+SECURITY PRINCIPLES:
+───────────────────────────────────────────────────────────────────────────
+• NEVER store passwords in application tables
+• RLS policies enforce data isolation between users
+• auth.uid() used to match authenticated user to table records
+• Students can only access their own data
+• Admins can access all data for oversight
+• SMS gateway uses service role key (bypasses RLS)
+
+PRIVACY NOTES:
+───────────────────────────────────────────────────────────────────────────
+• Location Data: Students see only their own GPS coordinates
+• Status Logs: Complete audit trail, students see only their history
+• Disaster Mode: Read-only for students, write access for admins
+• Admin Privileges: All admins have equal access (no role hierarchy)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                              KEY INDEXES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STUDENTS:
+  • idx_students_user_id         ON user_id
+  • idx_students_email            ON email
+  • idx_students_last_status      ON last_status
+  • idx_students_last_update      ON last_update_timestamp DESC
+
+STATUS_LOGS:
+  • idx_status_logs_student_id    ON student_id
+  • idx_status_logs_timestamp     ON timestamp DESC
+  • idx_status_logs_student_valid ON (student_id, timestamp DESC) 
+                                     WHERE validation_flag = TRUE
+  • idx_status_logs_source        ON source
+
+ADMINS:
+  • idx_admins_user_id            ON user_id
+  • idx_admins_email              ON email
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                          AUTO-TRIAGE LOGIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Students are automatically marked as UNKNOWN if:
+  • Disaster mode is active
+  • No update received within 6 hours of:
+    - mode_activated_at timestamp, OR
+    - their last_update_timestamp
+
+Function: auto_triage_students() (called by cron job)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                          DATABASE FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. update_student_status(student_id, status, source, lat, lng, validation)
+   - Updates student status and creates log entry
+   - Used by mobile app and SMS gateway
+
+2. auto_triage_students()
+   - Marks inactive students as UNKNOWN after 6 hours
+   - Called by cron job when disaster mode is active
+
+3. get_dashboard_metrics()
+   - Returns real-time counts of students by status
+   - Used by admin dashboard
+
+4. toggle_disaster_mode(activate)
+   - Activates or deactivates disaster mode
+   - Only callable by admins (protected by RLS)
+
+5. is_location_valid(old_lat, old_lng, new_lat, new_lng, threshold)
+   - Validates location updates (100m movement threshold)
+   - Used to detect significant location changes
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                          END OF ERD DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
