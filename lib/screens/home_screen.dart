@@ -11,6 +11,7 @@ import '../providers/app_state_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/location_service.dart';
 import '../utils/time_formatter.dart';
+import './map_screen.dart';
 
 /// Main home/status screen for the RESQ Mobile app
 class HomeScreen extends StatefulWidget {
@@ -674,6 +675,110 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         // Permission feedback is shown via SnackBar in _requestLocationPermission
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+
+                  // Emergency Map Card
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppTheme.primary.withValues(alpha: 0.2),
+                          AppTheme.accentCyan.withValues(alpha: 0.1),
+                        ],
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.radiusLarge),
+                      border: Border.all(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MapScreen(
+                                onBackPressed: () =>
+                                    Navigator.pop(context),
+                              ),
+                            ),
+                          );
+                        },
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusLarge),
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                              AppTheme.spacing16),
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(
+                                        AppTheme.spacing8),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primary
+                                          .withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(
+                                          AppTheme.radiusSmall),
+                                    ),
+                                    child: const Icon(
+                                      Icons.map,
+                                      color: AppTheme.accentCyan,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'View Emergency Map',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight:
+                                                FontWeight.w700,
+                                            color:
+                                                AppTheme.textPrimary,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'See evacuation centers near you',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight:
+                                                FontWeight.w400,
+                                            color: AppTheme
+                                                .textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: AppTheme.accentCyan
+                                        .withValues(alpha: 0.6),
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacing16),

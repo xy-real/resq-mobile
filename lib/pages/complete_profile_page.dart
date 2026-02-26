@@ -79,7 +79,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   }
 
   bool _isFormValid() {
-    return _formKey.currentState?.validate() ?? false && _agreedToTerms;
+    return (_formKey.currentState?.validate() ?? false) && _agreedToTerms;
   }
 
   Future<void> _handleSubmit() async {
