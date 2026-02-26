@@ -50,7 +50,7 @@ class _MapScreenState extends State<MapScreen> {
     _initializeMap();
   }
 
-  /// Initialize map with user location
+  /// Initialize map with user location and evacuation centers
   Future<void> _initializeMap() async {
     try {
       final appState = context.read<AppStateNotifier>();
@@ -62,6 +62,16 @@ class _MapScreenState extends State<MapScreen> {
           appState.setCurrentLocation(location);
         } else if (mounted) {
           setState(() => userLocationError = 'Unable to get current location');
+        }
+      }
+
+      // Fetch evacuation centers if showing them
+      if (widget.showEvacuationCenters) {
+        try {
+          await appState.fetchEvacuationCenters();
+        } catch (e) {
+          debugPrint('Error loading evacuation centers: $e');
+          // Continue without evacuation centers rather than stopping the map
         }
       }
 
@@ -130,12 +140,15 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   /// Build markers for evacuation centers
-  List<Marker> _buildEvacuationCenterMarkers() {
-    if (!widget.showEvacuationCenters) {
+  /// 
+  /// Creates visual markers for all evacuation centers provided.
+  /// Accepts the list of evacuation centers from app state.
+  List<Marker> _buildEvacuationCenterMarkers(List<EvacuationCenter> centers) {
+    if (!widget.showEvacuationCenters || centers.isEmpty) {
       return [];
     }
 
-    return mockEvacuationCenters.map((center) {
+    return centers.map((center) {
       final isSelected = selectedCenter?.id == center.id;
 
       return Marker(
@@ -623,7 +636,7 @@ class _MapScreenState extends State<MapScreen> {
                             if (_buildUserLocationMarker(location) != null)
                               _buildUserLocationMarker(location)!,
                             // Evacuation center markers
-                            ..._buildEvacuationCenterMarkers(),
+                            ..._buildEvacuationCenterMarkers(appStateNotifier.state.evacuationCenters),
                           ],
                         ),
                       ],

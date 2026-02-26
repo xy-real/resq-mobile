@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/location_service.dart';
 import '../services/status_service.dart';
+import '../services/evacuation_center_service.dart';
+import '../models/evacuation_center.dart';
 
 /// Represents the current state of the application
 class AppState {
@@ -13,6 +15,7 @@ class AppState {
   final bool locationEnabled;
   final DateTime? lastLocationUpdate;
   final LocationData? currentLocation;
+  final List<EvacuationCenter> evacuationCenters;
 
   AppState({
     required this.studentId,
@@ -23,6 +26,7 @@ class AppState {
     this.locationEnabled = false,
     this.lastLocationUpdate,
     this.currentLocation,
+    this.evacuationCenters = const [],
   });
 
   /// Create a copy of this state with some fields replaced
@@ -35,6 +39,7 @@ class AppState {
     bool? locationEnabled,
     DateTime? lastLocationUpdate,
     LocationData? currentLocation,
+    List<EvacuationCenter>? evacuationCenters,
   }) {
     return AppState(
       studentId: studentId ?? this.studentId,
@@ -45,6 +50,7 @@ class AppState {
       locationEnabled: locationEnabled ?? this.locationEnabled,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
       currentLocation: currentLocation ?? this.currentLocation,
+      evacuationCenters: evacuationCenters ?? this.evacuationCenters,
     );
   }
 
@@ -57,7 +63,8 @@ class AppState {
       'isConnected: $isConnected, '
       'locationEnabled: $locationEnabled, '
       'lastLocationUpdate: $lastLocationUpdate, '
-      'currentLocation: $currentLocation)';
+      'currentLocation: $currentLocation, '
+      'evacuationCenters: ${evacuationCenters.length} centers)';
 }
 
 /// Notifier for managing app state and persistence
@@ -187,6 +194,33 @@ class AppStateNotifier extends ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  /// Fetch evacuation centers from the backend
+  /// 
+  /// This method:
+  /// 1. Calls EvacuationCenterService to fetch from Supabase
+  /// 2. Updates app state with the fetched centers
+  /// 3. Caches the results for 30 minutes
+  /// 
+  /// If user is not authenticated or an error occurs, the method
+  /// will not update the state and will rethrow the exception.
+  /// 
+  /// Throws an exception if the backend fetch fails.
+  Future<List<EvacuationCenter>> fetchEvacuationCenters({bool forceRefresh = false}) async {
+    try {
+      final evacuationCenterService = EvacuationCenterService();
+      final centers = await evacuationCenterService.getEvacuationCenters(forceRefresh: forceRefresh);
+      
+      // Update app state with fetched centers
+      _state = _state.copyWith(evacuationCenters: centers);
+      notifyListeners();
+      
+      return centers;
+    } catch (e) {
+      debugPrint('Error fetching evacuation centers: $e');
+      rethrow;
+    }
   }
 
   /// Clear current status
