@@ -128,6 +128,7 @@ class SocialButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final bool isLoading;
+  final String? imageAsset;
 
   const SocialButton({
     super.key,
@@ -135,6 +136,7 @@ class SocialButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.isLoading = false,
+    this.imageAsset,
   });
 
   @override
@@ -176,11 +178,17 @@ class SocialButton extends StatelessWidget {
                       color: AppTheme.textPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     ),
-                    child: Icon(
-                      icon,
-                      color: AppTheme.textPrimary,
-                      size: 18,
-                    ),
+                    child: imageAsset != null
+                        ? Image.asset(
+                            imageAsset!,
+                            height: 18,
+                            width: 18,
+                          )
+                        : Icon(
+                            icon,
+                            color: AppTheme.textPrimary,
+                            size: 18,
+                          ),
                   ),
                   const SizedBox(width: AppTheme.spacing12),
                 ],

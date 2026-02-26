@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import '../widgets/status_header.dart';
 import '../widgets/status_button.dart';
@@ -337,29 +338,43 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // ResQ branding: Bold, modern, with letter spacing
+                  // ResQ branding: Logo and text
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                    child: Row(
                       children: [
-                        Text(
-                          'RESQ',
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.textPrimary,
-                            letterSpacing: 2.0, // Prominent letter spacing
+                        SvgPicture.asset(
+                          'assets/images/logo.svg',
+                          height: 50,
+                          width: 50,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.blue,
+                            BlendMode.srcIn,
                           ),
                         ),
-                        Text(
-                          'Emergency Status',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.textSecondary,
-                            letterSpacing: 0.5,
-                          ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'RESQ',
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.textPrimary,
+                                letterSpacing: 2.0, // Prominent letter spacing
+                              ),
+                            ),
+                            Text(
+                              'Emergency Status',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textSecondary,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

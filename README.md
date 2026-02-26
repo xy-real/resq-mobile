@@ -1,4 +1,4 @@
-# ResQ Mobile
+# ![ResQ Logo](assets/images/logo.svg) ResQ Mobile
 
 A Flutter disaster response app where students report their emergency status and see evacuation centers on an interactive map.
 

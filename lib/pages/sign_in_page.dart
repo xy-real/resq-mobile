@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../services/auth_service.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
@@ -172,14 +173,29 @@ class _SignInPageState extends State<SignInPage> {
                   children: [
                   // ==================== Header ====================
                   const SizedBox(height: AppTheme.spacing16),
-                  Text(
-                    'ResQ',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppTheme.accentCyan,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                      fontSize: 28,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/logo.svg',
+                        height: 50,
+                        width: 50,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.blue,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: AppTheme.spacing12),
+                      Text(
+                        'ResQ',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: AppTheme.accentCyan,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                          fontSize: 28,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: AppTheme.spacing20),
                   Text(
@@ -446,6 +462,7 @@ class _SignInPageState extends State<SignInPage> {
                     icon: Icons.g_mobiledata,
                     isLoading: _googleLoading,
                     onPressed: _handleGoogleSignIn,
+                    imageAsset: 'assets/images/google.png',
                   ),
                   const SizedBox(height: AppTheme.spacing32),
 
@@ -621,6 +638,7 @@ class _SignInPageState extends State<SignInPage> {
     required IconData icon,
     required bool isLoading,
     required VoidCallback onPressed,
+    String? imageAsset,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -647,11 +665,17 @@ class _SignInPageState extends State<SignInPage> {
                 if (!isLoading)
                   Padding(
                     padding: const EdgeInsets.only(right: AppTheme.spacing8),
-                    child: Icon(
-                      icon,
-                      color: AppTheme.accentCyan,
-                      size: 20,
-                    ),
+                    child: imageAsset != null
+                        ? Image.asset(
+                            imageAsset,
+                            height: 20,
+                            width: 20,
+                          )
+                        : Icon(
+                            icon,
+                            color: AppTheme.accentCyan,
+                            size: 20,
+                          ),
                   ),
                 if (isLoading)
                   Padding(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
@@ -360,6 +361,33 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ==================== Logo Header ====================
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/logo.svg',
+                      height: 50,
+                      width: 50,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.blue,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spacing12),
+                    Text(
+                      'ResQ',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: AppTheme.accentCyan,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                        fontSize: 28,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.spacing32),
+                
                 // ==================== Header ====================
                 Text(
                   'Create Account',
@@ -510,6 +538,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   icon: Icons.g_mobiledata,
                   isLoading: _googleLoading,
                   onPressed: _handleGoogleSignUp,
+                  imageAsset: 'assets/images/google.png',
                 ).build2(context),
                 const SizedBox(height: AppTheme.spacing16),
 
