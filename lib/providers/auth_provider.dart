@@ -36,23 +36,106 @@ class AuthNotifier extends ChangeNotifier {
       _state == AuthFlowState.authenticatedProfileComplete;
 
   /// Initialize auth state (call on app startup)
+  /// 
+  /// This method determines the current auth flow state by:
+  /// 1. Checking if a user is authenticated
+  /// 2. Checking if their profile is completed (locally cached)
+  /// 3. If not cached, querying the database to see if record exists
+  /// 
+  /// Sets _state to one of:
+  /// - unauthenticated: User is not logged in
+  /// - authenticatedProfileComplete: User is logged in with complete profile
+  /// - authenticatedNeedsProfile: User is logged in but profile needs completion
   Future<void> initialize() async {
     _state = AuthFlowState.loading;
     notifyListeners();
 
     try {
-      // Check if user profile is completed
-      final isComplete = await _profileService.isProfileCompleted();
+      final authService = AuthService();
       
-      if (isComplete) {
+      // If no authenticated user, they're unauthenticated
+      if (authService.currentUser == null) {
+        _state = AuthFlowState.unauthenticated;
+        notifyListeners();
+        return;
+      }
+
+      // Check if profile is cached locally
+      final isCompleted = await _profileService.isProfileCompleted();
+      
+      if (isCompleted) {
+        // Profile was previously completed, load from cache
+        _profile = _profileService.getCachedProfile();
         _state = AuthFlowState.authenticatedProfileComplete;
       } else {
-        // Try to load draft profile
-        _profile = _profileService.getCachedProfile();
-        _state = AuthFlowState.authenticatedNeedsProfile;
+        // Check if student record exists in database
+        final recordExists = await _profileService.studentRecordExists();
+        
+        if (recordExists) {
+          // Student record exists in database, load it
+          _profile = await _profileService.loadProfileFromDatabase();
+          _state = AuthFlowState.authenticatedProfileComplete;
+          
+          // Cache it locally for faster future loads
+          if (_profile != null) {
+            await _profileService.saveDraftProfile(_profile!);
+            await _profileService.markProfileComplete();
+          }
+        } else {
+          // No profile exists, prompt for completion
+          _profile = _profileService.getCachedProfile();
+          _state = AuthFlowState.authenticatedNeedsProfile;
+        }
       }
     } catch (e) {
       _error = 'Failed to initialize auth state: $e';
+      _state = AuthFlowState.error;
+    }
+
+    notifyListeners();
+  }
+
+  /// Call after successful Google sign-in
+  /// 
+  /// After a user successfully authenticates with Google, this method:
+  /// 1. Checks if a student record already exists in the database
+  /// 2. If it exists, loads it and marks profile as complete
+  /// 3. If it doesn't exist, initializes a form with the Google email
+  ///    and transitions to authenticatedNeedsProfile state
+  /// 
+  /// This allows returning users (who previously completed their profile)
+  /// to skip the form and go straight to the main app.
+  Future<void> handleGoogleSignInComplete() async {
+    _error = null;
+    notifyListeners();
+
+    try {
+      final recordExists = await _profileService.studentRecordExists();
+      
+      if (recordExists) {
+        // User has previously completed their profile
+        _profile = await _profileService.loadProfileFromDatabase();
+        _state = AuthFlowState.authenticatedProfileComplete;
+        
+        // Cache it locally
+        if (_profile != null) {
+          await _profileService.saveDraftProfile(_profile!);
+          await _profileService.markProfileComplete();
+        }
+      } else {
+        // New user - initialize form with Google email
+        final googleEmail = _profileService.getGoogleEmail();
+        _state = AuthFlowState.authenticatedNeedsProfile;
+        _profile = UserProfile(
+          studentId: '',
+          firstName: '',
+          surname: '',
+          email: googleEmail ?? '',
+          contactNumber: '',
+        );
+      }
+    } catch (e) {
+      _error = 'Failed to process Google sign-in: $e';
       _state = AuthFlowState.error;
     }
 

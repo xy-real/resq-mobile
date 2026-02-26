@@ -65,29 +65,68 @@ class ProfileCompletionService {
     }
   }
 
-  /// Submit completed profile (local storage only for MVP - backend integration comes later)
+  /// Submit completed profile to STUDENTS table in Supabase
+  /// 
+  /// This method:
+  /// 1. Validates the user is authenticated
+  /// 2. Creates a student record in the STUDENTS table with the profile data
+  /// 3. Saves the profile to local storage for offline access
+  /// 4. Returns the completed profile
+  /// 
+  /// Parameters:
+  ///   - profile: The complete user profile to save
+  /// 
+  /// Returns: The saved profile with profileCompleted flag set to true
+  /// 
+  /// Throws: Exception if user is not authenticated or database insertion fails
   Future<UserProfile> submitProfile(UserProfile profile) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {
-        throw 'User not authenticated';
+        throw Exception('User not authenticated');
       }
 
-      // For MVP: Save profile locally only
-      // TODO: Add Supabase integration when backend is ready
+      // Combine first name and surname as the full name for the database
+      final fullName = '${profile.firstName} ${profile.surname}'.trim();
+
+      // Insert/update student record in the STUDENTS table
+      // The RLS policy allows authenticated users to insert their own student record
+      await _supabase.from('students').upsert(
+        {
+          'student_id': profile.studentId,
+          'user_id': user.id,
+          'email': profile.email,
+          'name': fullName,
+          'contact_number': profile.contactNumber,
+          'last_status': 'UNKNOWN', // Initial status
+        },
+        onConflict: 'student_id', // Use student_id as the unique identifier
+      );
+
       final completedProfile = profile.copyWith(profileCompleted: true);
       final profileJson = jsonEncode(completedProfile.toJson());
       
-      // Save to local storage
+      // Save to local storage for offline access
       await _prefs.setString(_profileCompletionKey, profileJson);
       await _prefs.setBool(_profileCompleteStatusKey, true);
 
-      // Simulate network delay for better UX
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      debugPrint('Profile submitted successfully for student: ${profile.studentId}');
       return completedProfile;
     } catch (e) {
       debugPrint('Error submitting profile: $e');
+      rethrow;
+    }
+  }
+
+  /// Mark the profile as complete in local storage
+  /// 
+  /// This is called after successfully saving a profile to the database
+  /// or when loading an existing profile from the database.
+  Future<void> markProfileComplete() async {
+    try {
+      await _prefs.setBool(_profileCompleteStatusKey, true);
+    } catch (e) {
+      debugPrint('Error marking profile as complete: $e');
       rethrow;
     }
   }
@@ -120,6 +159,76 @@ class ProfileCompletionService {
       return user?.email;
     } catch (e) {
       debugPrint('Error getting Google email: $e');
+      return null;
+    }
+  }
+
+  /// Check if the authenticated user already has a student record in the database
+  /// 
+  /// This method queries the STUDENTS table for an existing record associated
+  /// with the currently authenticated user. Used to determine if profile 
+  /// completion is needed.
+  /// 
+  /// Returns: true if student record exists, false otherwise
+  /// 
+  /// Throws: Exception if not authenticated or database query fails
+  Future<bool> studentRecordExists() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        return false;
+      }
+
+      final response = await _supabase
+          .from('students')
+          .select('student_id')
+          .eq('user_id', user.id)
+          .maybeSingle(); // Returns null if no record found
+
+      return response != null;
+    } catch (e) {
+      debugPrint('Error checking student record: $e');
+      // If there's an error, assume record doesn't exist to prompt for profile
+      return false;
+    }
+  }
+
+  /// Load the authenticated user's profile from the database
+  /// 
+  /// This method fetches the student record (if it exists) from the database
+  /// and returns it as a UserProfile object.
+  /// 
+  /// Returns: UserProfile if found, null if no record exists
+  /// 
+  /// Throws: Exception if database query fails
+  Future<UserProfile?> loadProfileFromDatabase() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        return null;
+      }
+
+      final response = await _supabase
+          .from('students')
+          .select()
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      if (response == null) {
+        return null;
+      }
+
+      // Parse the database response into a UserProfile
+      return UserProfile(
+        studentId: response['student_id'] ?? '',
+        firstName: (response['name'] ?? '').split(' ').first,
+        surname: (response['name'] ?? '').split(' ').skip(1).join(' '),
+        email: response['email'] ?? '',
+        contactNumber: response['contact_number'] ?? '',
+        profileCompleted: true,
+      );
+    } catch (e) {
+      debugPrint('Error loading profile from database: $e');
       return null;
     }
   }

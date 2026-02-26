@@ -107,10 +107,10 @@ class _SignInPageState extends State<SignInPage> {
       );
 
       if (mounted) {
-        final googleEmail = _authService.currentUser?.email;
-        context.read<AuthNotifier>().setGoogleAuthenticatedNeedsProfile(
-          email: googleEmail ?? '',
-        );
+        // Handle the Google sign-in completion with backend profile check
+        // This will determine if the user needs to complete profile or if
+        // they already have a student record in the database
+        await context.read<AuthNotifier>().handleGoogleSignInComplete();
         widget.onSignInSuccess?.call();
       }
     } catch (e) {
