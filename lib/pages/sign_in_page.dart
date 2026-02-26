@@ -25,7 +25,7 @@ class _SignInPageState extends State<SignInPage> {
   
   bool _isLoading = false;
   bool _googleLoading = false;
-  bool _appleLoading = false;
+  final bool _appleLoading = false;
   String? _errorMessage;
 
   final AuthService _authService = AuthService();
@@ -159,7 +159,7 @@ class _SignInPageState extends State<SignInPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withOpacity(0.1),
+                      color: AppTheme.errorRed.withValues(alpha: 0.1),
                       border: Border.all(color: AppTheme.errorRed),
                       borderRadius: BorderRadius.circular(8),
                     ),
